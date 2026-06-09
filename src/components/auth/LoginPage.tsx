@@ -17,7 +17,7 @@ export function LoginPage() {
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          providers={['google', 'github']}
+          providers={[]}
           redirectTo={window.location.origin + '/dashboard'}
           showLinks={true}
           view="sign_in"
