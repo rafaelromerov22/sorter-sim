@@ -11,6 +11,7 @@ export function ProjectDashboard() {
     useProjectStore()
   const [showModal, setShowModal] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProjects()
@@ -18,11 +19,15 @@ export function ProjectDashboard() {
 
   const handleCreate = async (name: string, description: string) => {
     setCreating(true)
+    setCreateError(null)
     const project = await createProject(name, description)
     setCreating(false)
-    setShowModal(false)
     if (project) {
+      setShowModal(false)
       navigate(`/project/${project.id}`)
+    } else {
+      // Keep modal open, show the error from the store
+      setCreateError(useProjectStore.getState().error ?? 'Failed to create project')
     }
   }
 
@@ -88,8 +93,9 @@ export function ProjectDashboard() {
       {showModal && (
         <CreateProjectModal
           onConfirm={handleCreate}
-          onCancel={() => setShowModal(false)}
+          onCancel={() => { setShowModal(false); setCreateError(null) }}
           isLoading={creating}
+          error={createError}
         />
       )}
     </div>

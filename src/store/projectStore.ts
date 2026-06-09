@@ -36,9 +36,15 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   fetchProjects: async () => {
     set({ loading: true, error: null })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      set({ loading: false, error: 'Not authenticated' })
+      return
+    }
     const { data, error } = await supabase
       .from('projects')
       .select('*')
+      .eq('owner_id', user.id)
       .order('updated_at', { ascending: false })
     if (error) {
       set({ loading: false, error: error.message })
@@ -48,7 +54,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   createProject: async (name, description) => {
-    set({ loading: true, error: null })
+    set({ error: null })
     const { data, error } = await supabase
       .from('projects')
       .insert({
@@ -59,12 +65,11 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       .select()
       .single()
     if (error) {
-      set({ loading: false, error: error.message })
+      set({ error: error.message })
       return null
     }
     const project = data as Project
     set((state) => ({
-      loading: false,
       projects: [project, ...state.projects],
     }))
     return project

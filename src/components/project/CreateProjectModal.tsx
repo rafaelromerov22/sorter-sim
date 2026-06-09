@@ -4,9 +4,10 @@ interface CreateProjectModalProps {
   onConfirm: (name: string, description: string) => void
   onCancel: () => void
   isLoading: boolean
+  error?: string | null
 }
 
-export function CreateProjectModal({ onConfirm, onCancel, isLoading }: CreateProjectModalProps) {
+export function CreateProjectModal({ onConfirm, onCancel, isLoading, error }: CreateProjectModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
@@ -55,6 +56,11 @@ export function CreateProjectModal({ onConfirm, onCancel, isLoading }: CreatePro
               className="mt-1 w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </div>
+          )}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
