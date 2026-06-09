@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 
 type AuthView = 'sign_in' | 'sign_up' | 'forgot_password'
 
 export function LoginPage() {
+  const navigate = useNavigate()
   const [view, setView] = useState<AuthView>('sign_in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -19,8 +21,11 @@ export function LoginPage() {
 
     if (view === 'sign_in') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
-      // AuthGuard will handle redirect on successful sign-in
+      if (error) {
+        setError(error.message)
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
     } else if (view === 'sign_up') {
       const { error } = await supabase.auth.signUp({ email, password })
       if (error) {
