@@ -26,7 +26,7 @@ export function JamTimelineChart({ results }: Props) {
             dataKey="timeSec"
             name="Time"
             unit="s"
-            domain={[0, 300]}
+            domain={[0, results.runDurationSec]}
             tick={{ fontSize: 11 }}
           />
           <YAxis
