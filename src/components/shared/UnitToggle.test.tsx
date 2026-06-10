@@ -31,14 +31,14 @@ describe('UnitToggle', () => {
 
   it('toggles store to metric when clicked while imperial', () => {
     render(<UnitToggle />)
-    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button', { name: 'Metric' }))
     expect(useProjectStore.getState().unitSystem).toBe('metric')
   })
 
   it('toggles store to imperial when clicked while metric', () => {
     useProjectStore.setState({ unitSystem: 'metric' })
     render(<UnitToggle />)
-    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByRole('button', { name: 'Imperial' }))
     expect(useProjectStore.getState().unitSystem).toBe('imperial')
   })
 })

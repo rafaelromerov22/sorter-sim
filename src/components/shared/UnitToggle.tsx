@@ -1,28 +1,35 @@
+// src/components/shared/UnitToggle.tsx
 import { useProjectStore } from '../../store/projectStore'
+import { useConfigStore } from '../../store/configStore'
+import type { UnitSystem } from '../../types'
 
 export function UnitToggle() {
-  const { unitSystem, setUnitSystem } = useProjectStore()
+  const unitSystem    = useProjectStore(s => s.unitSystem)
+  const setUnitSystem = useProjectStore(s => s.setUnitSystem)
+  const convertToSystem = useConfigStore(s => s.convertToSystem)
 
-  const handleToggle = () => {
-    setUnitSystem(unitSystem === 'imperial' ? 'metric' : 'imperial')
+  function handleToggle(system: UnitSystem) {
+    setUnitSystem(system)
+    // Convert any loaded config values in-place
+    const { projectId } = useConfigStore.getState()
+    if (projectId) convertToSystem(system)
   }
 
   return (
-    <button
-      onClick={handleToggle}
-      className="flex items-center gap-2 rounded-full border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-      title={`Switch to ${unitSystem === 'imperial' ? 'metric' : 'imperial'} units`}
-    >
-      <span className={unitSystem === 'imperial' ? 'text-blue-600 font-semibold' : 'text-gray-400'}>
-        ft
-      </span>
-      <span className="text-gray-300">/</span>
-      <span className={unitSystem === 'metric' ? 'text-blue-600 font-semibold' : 'text-gray-400'}>
-        m
-      </span>
-      <span className="ml-1 text-xs uppercase tracking-wide">
-        {unitSystem === 'imperial' ? 'Imperial' : 'Metric'}
-      </span>
-    </button>
+    <div className="flex rounded-lg border border-gray-200 bg-gray-100 p-0.5 text-xs font-medium">
+      {(['imperial', 'metric'] as UnitSystem[]).map(sys => (
+        <button
+          key={sys}
+          onClick={() => handleToggle(sys)}
+          className={`rounded px-2.5 py-1 capitalize transition-colors ${
+            unitSystem === sys
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          {sys === 'imperial' ? 'Imperial' : 'Metric'}
+        </button>
+      ))}
+    </div>
   )
 }
