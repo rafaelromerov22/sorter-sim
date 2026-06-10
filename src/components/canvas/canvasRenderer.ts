@@ -52,21 +52,22 @@ function drawExitLane(
   ctx.translate(exitXPx, originY)
   ctx.rotate(canvasAngle)
 
-  // Fill lane with light background so it's clearly visible
-  ctx.fillStyle = 'rgba(209,213,219,0.4)'
+  // Lane fill — light blue so it's clearly distinct from the belt
+  ctx.fillStyle = '#dbeafe'
   ctx.fillRect(0, -laneWPx / 2, laneLenPx, laneWPx)
 
   // Lane border
-  ctx.strokeStyle = '#6b7280'
-  ctx.lineWidth = 1
+  ctx.strokeStyle = '#3b82f6'
+  ctx.lineWidth = 1.5
   ctx.strokeRect(0, -laneWPx / 2, laneLenPx, laneWPx)
 
   // Exit label (E1, E2…) at start of lane
-  ctx.fillStyle = '#6b7280'
-  ctx.font = `bold ${Math.min(11, laneWPx * 0.4)}px sans-serif`
+  const fontSize = Math.max(9, Math.min(13, laneWPx * 0.45))
+  ctx.fillStyle = '#1d4ed8'
+  ctx.font = `bold ${fontSize}px sans-serif`
   ctx.textAlign = 'left'
   ctx.textBaseline = 'middle'
-  ctx.fillText(`E${exitIndex + 1}`, 4, 0)
+  ctx.fillText(`E${exitIndex + 1}`, 3, 0)
 
   ctx.restore()
 }
