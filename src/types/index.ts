@@ -42,7 +42,11 @@ export interface DiverterPreset {
 
 // ── Config building blocks ───────────────────────────────────────────────────
 export type ExitSide = 'left' | 'right'
+// Only these three angles have matching canvas geometries in Stage 3
 export type DivertAngle = 30 | 45 | 90
+// horizontal = products lie flat on the belt (long axis across belt width)
+// vertical   = products stand upright (long axis parallel to belt direction)
+// random     = simulation generates mixed orientations from distributionPercent weights
 export type FeedMode = 'horizontal' | 'vertical' | 'random'
 export type PackagingType = 'rigid_carton' | 'poly_bag' | 'tote' | 'loose_item'
 export type ProductOrientation = 'long_axis_parallel' | 'long_axis_perpendicular'
@@ -72,7 +76,7 @@ export interface ExitConfig {
   diverterExtendTime: number  // seconds
   diverterRetractTime: number // seconds
   sensorOffset: number        // ft | m (distance upstream from divert centre)
-  priority: number
+  priority: number  // 0 = highest priority; lower value wins on overflow routing
 }
 
 export interface ProductSKU {
@@ -127,7 +131,7 @@ export interface ProjectVersion {
   version_num: number
   label: string | null
   config_json: ProjectConfig
-  results_json: unknown | null
+  results_json: unknown
   created_at: string
   created_by: string
 }
