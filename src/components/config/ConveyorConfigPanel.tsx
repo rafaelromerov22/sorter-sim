@@ -23,7 +23,7 @@ export function ConveyorConfigPanel({ line }: Props) {
 
   const gapSec = gapTimeSec(
     unitSystem === 'imperial' ? line.conveyor.minGapDistance : line.conveyor.minGapDistance / 25.4,
-    unitSystem === 'imperial' ? line.conveyor.speed : line.conveyor.speed / 0.3048,
+    unitSystem === 'imperial' ? line.conveyor.speed / 12 : line.conveyor.speed / 0.3048,
   )
 
   return (
@@ -32,32 +32,32 @@ export function ConveyorConfigPanel({ line }: Props) {
 
       <InputField
         label="Belt Length"
-        value={+line.conveyor.length.toFixed(3)}
+        value={+line.conveyor.length.toFixed(1)}
         onChange={v => updateConveyor(line.id, { length: v as number })}
         unit={lenUnit}
-        min={1}
-        max={unitSystem === 'imperial' ? 2000 : 600}
-        step={unitSystem === 'imperial' ? 1 : 0.1}
+        min={12}
+        max={unitSystem === 'imperial' ? 24000 : 600}
+        step={unitSystem === 'imperial' ? 12 : 0.1}
       />
 
       <InputField
         label="Belt Width"
-        value={+line.conveyor.width.toFixed(3)}
+        value={+line.conveyor.width.toFixed(1)}
         onChange={v => updateConveyor(line.id, { width: v as number })}
         unit={lenUnit}
-        min={0.5}
-        max={unitSystem === 'imperial' ? 10 : 3}
-        step={unitSystem === 'imperial' ? 0.25 : 0.05}
+        min={6}
+        max={unitSystem === 'imperial' ? 120 : 3}
+        step={unitSystem === 'imperial' ? 3 : 0.05}
       />
 
       <InputField
         label="Belt Speed"
-        value={+line.conveyor.speed.toFixed(2)}
+        value={+line.conveyor.speed.toFixed(0)}
         onChange={v => updateConveyor(line.id, { speed: v as number })}
         unit={speedUnit}
-        min={1}
-        max={unitSystem === 'imperial' ? 600 : 183}
-        step={unitSystem === 'imperial' ? 5 : 1}
+        min={12}
+        max={unitSystem === 'imperial' ? 7200 : 183}
+        step={unitSystem === 'imperial' ? 60 : 1}
       />
       <ValidationBadge results={fieldResults(validationResults, 'conveyor.speed')} />
 

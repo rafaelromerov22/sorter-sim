@@ -105,27 +105,27 @@ export function ExitConfigPanel({ line }: Props) {
               />
               <InputField
                 label="Distance from Infeed"
-                value={+exit.distanceFromInfeed.toFixed(2)}
+                value={+exit.distanceFromInfeed.toFixed(1)}
                 onChange={v => updateExit(line.id, exit.id, { distanceFromInfeed: v as number })}
                 unit={lenUnit}
                 min={0}
-                step={unitSystem === 'imperial' ? 1 : 0.1}
+                step={unitSystem === 'imperial' ? 12 : 0.1}
               />
               <InputField
                 label="Lane Width"
-                value={+exit.laneWidth.toFixed(2)}
+                value={+exit.laneWidth.toFixed(1)}
                 onChange={v => updateExit(line.id, exit.id, { laneWidth: v as number })}
                 unit={lenUnit}
-                min={0.5}
-                step={unitSystem === 'imperial' ? 0.25 : 0.05}
+                min={6}
+                step={unitSystem === 'imperial' ? 3 : 0.05}
               />
               <InputField
                 label="Lane Length"
-                value={+exit.laneLength.toFixed(2)}
+                value={+exit.laneLength.toFixed(1)}
                 onChange={v => updateExit(line.id, exit.id, { laneLength: v as number })}
                 unit={lenUnit}
-                min={1}
-                step={unitSystem === 'imperial' ? 1 : 0.1}
+                min={12}
+                step={unitSystem === 'imperial' ? 12 : 0.1}
               />
               <InputField
                 label="Exit Belt Speed"

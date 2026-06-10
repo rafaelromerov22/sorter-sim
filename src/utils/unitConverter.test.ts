@@ -39,8 +39,8 @@ describe('unitConverter', () => {
     expect(fpmToMpm(100)).toBeCloseTo(30.48, 6)
   })
 
-  it('unitLabel: speed imperial = ft/min', () => {
-    expect(unitLabel('speed', 'imperial')).toBe('ft/min')
+  it('unitLabel: speed imperial = in/min', () => {
+    expect(unitLabel('speed', 'imperial')).toBe('in/min')
   })
 
   it('unitLabel: speed metric = m/min', () => {
@@ -53,25 +53,25 @@ describe('unitConverter', () => {
 
   it('convertLineConfig: imperial→metric converts conveyor speed', () => {
     const line = makeMinimalLine()
-    line.conveyor.speed = 200  // ft/min
+    line.conveyor.speed = 2400  // in/min (≡ 200 ft/min)
     const converted = convertLineConfig(line, 'imperial', 'metric')
     expect(converted.conveyor.speed).toBeCloseTo(fpmToMpm(200), 5)
   })
 
   it('convertLineConfig: same system returns unchanged values', () => {
     const line = makeMinimalLine()
-    line.conveyor.speed = 200
+    line.conveyor.speed = 2400
     const converted = convertLineConfig(line, 'imperial', 'imperial')
-    expect(converted.conveyor.speed).toBe(200)
+    expect(converted.conveyor.speed).toBe(2400)
   })
 
   it('convertLineConfig: imperial→metric converts exit distanceFromInfeed', () => {
     const line = makeMinimalLine()
     line.exits = [{
-      id: 'e1', index: 0, side: 'right', distanceFromInfeed: 20,
-      laneWidth: 3, laneLength: 10, exitSpeed: 150, maxQueueDepth: 10,
+      id: 'e1', index: 0, side: 'right', distanceFromInfeed: 240,  // in (≡ 20 ft)
+      laneWidth: 36, laneLength: 120, exitSpeed: 1800, maxQueueDepth: 10,
       angle: 45, diverterType: 'sliding_shoe', diverterCycleTime: 0.4,
-      diverterExtendTime: 0.2, diverterRetractTime: 0.2, sensorOffset: 2, priority: 0,
+      diverterExtendTime: 0.2, diverterRetractTime: 0.2, sensorOffset: 24, priority: 0,
     }]
     const converted = convertLineConfig(line, 'imperial', 'metric')
     expect(converted.exits[0].distanceFromInfeed).toBeCloseTo(ftToM(20), 5)
@@ -98,7 +98,7 @@ function makeMinimalLine(): ConveyorLineConfig {
   return {
     id: 'l1',
     name: 'Line 1',
-    conveyor: { length: 100, width: 3, speed: 200, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
+    conveyor: { length: 1200, width: 36, speed: 2400, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
     exits: [],
     feed: { mode: 'horizontal', targetPPM: 30, mixedDimensions: false, singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10 },
     skus: [],

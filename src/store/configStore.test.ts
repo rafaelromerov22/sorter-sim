@@ -34,7 +34,7 @@ describe('configStore', () => {
     const { lines } = useConfigStore.getState()
     expect(lines).toHaveLength(1)
     expect(lines[0].name).toBe('Line 1')
-    expect(lines[0].conveyor.speed).toBe(200)
+    expect(lines[0].conveyor.speed).toBe(2400)
   })
 
   it('addLine twice: names are Line 1 and Line 2', () => {
@@ -92,10 +92,10 @@ describe('configStore', () => {
   it('convertToSystem: converts conveyor speed from imperial to metric', () => {
     useConfigStore.setState({ unitSystem: 'imperial' })
     useConfigStore.getState().addLine()
-    const originalSpeed = useConfigStore.getState().lines[0].conveyor.speed // 200 ft/min
+    const originalSpeed = useConfigStore.getState().lines[0].conveyor.speed // 2400 in/min
     useConfigStore.getState().convertToSystem('metric')
     const newSpeed = useConfigStore.getState().lines[0].conveyor.speed
-    expect(newSpeed).toBeCloseTo(originalSpeed * 0.3048, 4)
+    expect(newSpeed).toBeCloseTo(originalSpeed * 0.0254, 4)  // in/min → m/min
   })
 
   it('setIsDirty: marks store as dirty', () => {

@@ -10,14 +10,19 @@ export const lbsToKg = (v: number) => v * 0.453592
 export const kgToLbs = (v: number) => v / 0.453592
 export const fpmToMpm = (v: number) => v * 0.3048
 export const mpmToFpm = (v: number) => v / 0.3048
+// Imperial 'length' dimension is inches (not feet)
+export const inToM   = (v: number) => v * 0.0254
+export const mToIn   = (v: number) => v / 0.0254
+export const inpmToMpm = (v: number) => v * 0.0254  // in/min → m/min
+export const mpmToInpm = (v: number) => v / 0.0254  // m/min → in/min
 
 // ── Dimension types ──────────────────────────────────────────────────────────
 export type Dimension = 'length' | 'speed' | 'weight' | 'smallLength'
 
 export function toMetric(v: number, dim: Dimension): number {
   switch (dim) {
-    case 'length':      return ftToM(v)
-    case 'speed':       return fpmToMpm(v)
+    case 'length':      return inToM(v)        // in → m
+    case 'speed':       return inpmToMpm(v)    // in/min → m/min
     case 'weight':      return lbsToKg(v)
     case 'smallLength': return inToMm(v)
   }
@@ -25,8 +30,8 @@ export function toMetric(v: number, dim: Dimension): number {
 
 export function toImperial(v: number, dim: Dimension): number {
   switch (dim) {
-    case 'length':      return mToFt(v)
-    case 'speed':       return mpmToFpm(v)
+    case 'length':      return mToIn(v)        // m → in
+    case 'speed':       return mpmToInpm(v)    // m/min → in/min
     case 'weight':      return kgToLbs(v)
     case 'smallLength': return mmToIn(v)
   }
@@ -34,8 +39,8 @@ export function toImperial(v: number, dim: Dimension): number {
 
 export function unitLabel(dim: Dimension, system: UnitSystem): string {
   const map: Record<Dimension, { imperial: string; metric: string }> = {
-    length:      { imperial: 'ft',     metric: 'm'     },
-    speed:       { imperial: 'ft/min', metric: 'm/min' },
+    length:      { imperial: 'in',     metric: 'm'     },
+    speed:       { imperial: 'in/min', metric: 'm/min' },
     weight:      { imperial: 'lbs',    metric: 'kg'    },
     smallLength: { imperial: 'in',     metric: 'mm'    },
   }

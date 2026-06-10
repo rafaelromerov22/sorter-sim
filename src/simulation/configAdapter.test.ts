@@ -7,7 +7,7 @@ function makeImperialLine(overrides: Partial<ConveyorLineConfig> = {}): Conveyor
     id: 'line-1',
     name: 'Line 1',
     conveyor: {
-      length: 100, width: 3, speed: 200,
+      length: 1200, width: 36, speed: 2400,  // in/min — 1200 in = 100 ft, 2400 in/min = 200 fpm
       minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100,
     },
     exits: [],
@@ -25,9 +25,10 @@ function makeImperialLine(overrides: Partial<ConveyorLineConfig> = {}): Conveyor
 }
 
 describe('toSimInput', () => {
-  it('passes imperial values through unchanged', () => {
+  it('converts imperial in/min to fpm for the simulation engine', () => {
     const input = toSimInput(makeImperialLine(), 'imperial')
-    expect(input.beltSpeedFpm).toBe(200)
+    expect(input.beltSpeedFpm).toBeCloseTo(200, 5)  // 2400 in/min → 200 fpm
+    expect(input.beltLengthFt).toBeCloseTo(100, 5)  // 1200 in → 100 ft
     expect(input.minGapIn).toBe(6)
     expect(input.targetPPM).toBe(30)
     expect(input.randomSeed).toBe(42)
@@ -42,24 +43,24 @@ describe('toSimInput', () => {
     expect(input.minGapIn).toBeCloseTo(6, 0)
   })
 
-  it('maps exit fields to SimExit correctly', () => {
+  it('maps exit fields to SimExit correctly (in → ft conversion)', () => {
     const line = makeImperialLine({
       exits: [{
         id: 'exit-1', index: 0, side: 'right',
-        distanceFromInfeed: 30, laneWidth: 3, laneLength: 10,
-        exitSpeed: 150, maxQueueDepth: 8, angle: 45,
+        distanceFromInfeed: 360, laneWidth: 36, laneLength: 120,  // in
+        exitSpeed: 1800, maxQueueDepth: 8, angle: 45,             // in/min
         diverterType: 'sliding_shoe', diverterCycleTime: 0.45,
         diverterExtendTime: 0.225, diverterRetractTime: 0.225,
-        sensorOffset: 2, priority: 0,
+        sensorOffset: 24, priority: 0,
       }],
     })
     const input = toSimInput(line, 'imperial')
     expect(input.exits).toHaveLength(1)
-    expect(input.exits[0].distanceFromInfeedFt).toBe(30)
+    expect(input.exits[0].distanceFromInfeedFt).toBeCloseTo(30, 5)  // 360 in → 30 ft
     expect(input.exits[0].diverterCycleTimeSec).toBe(0.45)
     expect(input.exits[0].maxQueueDepth).toBe(8)
-    expect(input.exits[0].laneExitSpeedFpm).toBe(150)
-    expect(input.exits[0].laneLengthFt).toBe(10)
+    expect(input.exits[0].laneExitSpeedFpm).toBeCloseTo(150, 5)  // 1800 in/min → 150 fpm
+    expect(input.exits[0].laneLengthFt).toBeCloseTo(10, 5)       // 120 in → 10 ft
   })
 
   it('maps SKU fields to SimSKU correctly', () => {

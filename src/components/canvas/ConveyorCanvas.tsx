@@ -12,7 +12,7 @@ const FT_PER_IN  = 1 / 12
 const FT_PER_MM  = 1 / 304.8
 
 function conveyorToFt(v: number, us: UnitSystem): number {
-  return us === 'metric' ? v * FT_PER_M : v
+  return us === 'metric' ? v * FT_PER_M : v * FT_PER_IN
 }
 function skuDimToFt(v: number, us: UnitSystem): number {
   return us === 'metric' ? v * FT_PER_MM : v * FT_PER_IN

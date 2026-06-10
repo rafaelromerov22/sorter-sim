@@ -8,11 +8,11 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
   const exits: SimExit[] = line.exits.map(e => ({
     id: e.id,
     index: e.index,
-    distanceFromInfeedFt: m ? mToFt(e.distanceFromInfeed) : e.distanceFromInfeed,
+    distanceFromInfeedFt: m ? mToFt(e.distanceFromInfeed) : e.distanceFromInfeed / 12,
     diverterCycleTimeSec: e.diverterCycleTime,
     maxQueueDepth: e.maxQueueDepth,
-    laneExitSpeedFpm: m ? mpmToFpm(e.exitSpeed) : e.exitSpeed,
-    laneLengthFt: m ? mToFt(e.laneLength) : e.laneLength,
+    laneExitSpeedFpm: m ? mpmToFpm(e.exitSpeed) : e.exitSpeed / 12,
+    laneLengthFt: m ? mToFt(e.laneLength) : e.laneLength / 12,
   }))
 
   const skus: SimSKU[] = line.skus.map(sk => ({
@@ -25,8 +25,8 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
   }))
 
   return {
-    beltSpeedFpm: m ? mpmToFpm(line.conveyor.speed) : line.conveyor.speed,
-    beltLengthFt: m ? mToFt(line.conveyor.length) : line.conveyor.length,
+    beltSpeedFpm: m ? mpmToFpm(line.conveyor.speed) : line.conveyor.speed / 12,
+    beltLengthFt: m ? mToFt(line.conveyor.length) : line.conveyor.length / 12,
     minGapIn: m ? mmToIn(line.conveyor.minGapDistance) : line.conveyor.minGapDistance,
     availabilityFactor: line.conveyor.availabilityFactor,
     targetPPM: line.feed.targetPPM,

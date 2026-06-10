@@ -15,7 +15,7 @@ import type { SimRunResult } from '../simulation/types'
 // ── Default factory functions ─────────────────────────────────────────────────
 function defaultConveyorConfig(): ConveyorConfig {
   return {
-    length: 100, width: 3, speed: 200,
+    length: 1200, width: 36, speed: 2400,
     minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100,
   }
 }
@@ -32,17 +32,17 @@ function defaultExit(index: number): ExitConfig {
     id: crypto.randomUUID(),
     index,
     side: 'right',
-    distanceFromInfeed: 20 * (index + 1),
-    laneWidth: 3,
-    laneLength: 10,
-    exitSpeed: 150,
+    distanceFromInfeed: 240 * (index + 1),
+    laneWidth: 36,
+    laneLength: 120,
+    exitSpeed: 1800,
     maxQueueDepth: 10,
     angle: 45,
     diverterType: 'sliding_shoe',
     diverterCycleTime: 0.45,
     diverterExtendTime: 0.225,
     diverterRetractTime: 0.225,
-    sensorOffset: 2,
+    sensorOffset: 24,
     priority: index,
   }
 }
