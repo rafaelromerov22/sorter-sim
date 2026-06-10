@@ -121,9 +121,9 @@ interface ConfigStore {
   fetchVersions: () => Promise<void>
   restoreVersion: (version: ProjectVersion) => void
 
-  // Simulation
-  simResults: SimulationResults | null
-  simFullResult: SimRunResult | null
+  // Simulation (keyed by line id so each line keeps its own results)
+  simResultsByLine: Record<string, SimulationResults>
+  simFullResultByLine: Record<string, SimRunResult>
   simLoading: boolean
   runSimulation: () => Promise<void>
   saveSimResults: () => Promise<void>
@@ -141,8 +141,8 @@ const INITIAL_STATE = {
   saveLoading: false,
   configLoading: false,
   error: null,
-  simResults: null,
-  simFullResult: null,
+  simResultsByLine: {} as Record<string, SimulationResults>,
+  simFullResultByLine: {} as Record<string, SimRunResult>,
   simLoading: false,
 }
 
@@ -353,7 +353,7 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
     const { lines, activeLineId, unitSystem } = get()
     const line = lines.find(l => l.id === activeLineId)
     if (!line) return
-    set({ simLoading: true, simResults: null, simFullResult: null })
+    set({ simLoading: true })
     try {
       const input = toSimInput(line, unitSystem)
       const full = runSimulation(input)
@@ -379,14 +379,19 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
         })),
         jamEvents: full.jamEvents.slice(0, 20),
       }
-      set({ simLoading: false, simResults: summary, simFullResult: full })
+      set(s => ({
+        simLoading: false,
+        simResultsByLine: { ...s.simResultsByLine, [activeLineId]: summary },
+        simFullResultByLine: { ...s.simFullResultByLine, [activeLineId]: full },
+      }))
     } catch (e) {
       set({ simLoading: false, error: e instanceof Error ? e.message : 'Simulation failed' })
     }
   },
 
   saveSimResults: async () => {
-    const { projectId, simResults } = get()
+    const { projectId, activeLineId, simResultsByLine } = get()
+    const simResults = activeLineId ? simResultsByLine[activeLineId] : null
     if (!projectId || !simResults) return
     try {
       const { data: latest } = await supabase

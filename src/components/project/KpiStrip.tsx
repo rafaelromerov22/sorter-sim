@@ -15,7 +15,11 @@ function Tile({ label, value, highlight }: TileProps) {
 }
 
 export function KpiStrip() {
-  const { simResults } = useConfigStore(useShallow(s => ({ simResults: s.simResults })))
+  const { simResultsByLine, activeLineId } = useConfigStore(useShallow(s => ({
+    simResultsByLine: s.simResultsByLine,
+    activeLineId:     s.activeLineId,
+  })))
+  const simResults = activeLineId ? simResultsByLine[activeLineId] ?? null : null
 
   const fmt = (n: number | undefined, decimals = 1) =>
     n !== undefined ? n.toFixed(decimals) : '--'

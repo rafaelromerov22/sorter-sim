@@ -16,19 +16,22 @@ type CenterTab = 'results' | 'canvas'
 export function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>()
 
-  const { loadConfig, configLoading, simResults, simLoading, runSimulation,
-          isDirty, saveLoading, saveVersion, projectId } =
+  const { loadConfig, configLoading, simResultsByLine, simLoading, runSimulation,
+          isDirty, saveLoading, saveVersion, projectId, activeLineId } =
     useConfigStore(useShallow(s => ({
-      loadConfig:    s.loadConfig,
-      configLoading: s.configLoading,
-      simResults:    s.simResults,
-      simLoading:    s.simLoading,
-      runSimulation: s.runSimulation,
-      isDirty:       s.isDirty,
-      saveLoading:   s.saveLoading,
-      saveVersion:   s.saveVersion,
-      projectId:     s.projectId,
+      loadConfig:        s.loadConfig,
+      configLoading:     s.configLoading,
+      simResultsByLine:  s.simResultsByLine,
+      simLoading:        s.simLoading,
+      runSimulation:     s.runSimulation,
+      isDirty:           s.isDirty,
+      saveLoading:       s.saveLoading,
+      saveVersion:       s.saveVersion,
+      projectId:         s.projectId,
+      activeLineId:      s.activeLineId,
     })))
+
+  const simResults = activeLineId ? simResultsByLine[activeLineId] ?? null : null
 
   const projects   = useProjectStore(s => s.projects)
   const unitSystem = useProjectStore(s => s.unitSystem)

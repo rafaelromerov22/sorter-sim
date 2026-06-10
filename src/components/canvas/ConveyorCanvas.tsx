@@ -40,15 +40,16 @@ function buildExits(line: ConveyorLineConfig, us: UnitSystem): CanvasExit[] {
 
 // ── Component ────────────────────────────────────────────────────────────────
 export function ConveyorCanvas() {
-  const { simFullResult, lines, activeLineId, unitSystem } = useConfigStore(
+  const { simFullResultByLine, lines, activeLineId, unitSystem } = useConfigStore(
     useShallow(s => ({
-      simFullResult: s.simFullResult,
+      simFullResultByLine: s.simFullResultByLine,
       lines: s.lines,
       activeLineId: s.activeLineId,
       unitSystem: s.unitSystem,
     })),
   )
   const line = lines.find(l => l.id === activeLineId)
+  const simFullResult = activeLineId ? simFullResultByLine[activeLineId] ?? null : null
 
   const canvasRef    = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
