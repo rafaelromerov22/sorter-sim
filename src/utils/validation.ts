@@ -11,7 +11,7 @@ function toImperialIn(v: number, system: UnitSystem): number {
   return system === 'metric' ? mmToIn(v) : v
 }
 function toImperialFpm(v: number, system: UnitSystem): number {
-  return system === 'metric' ? mpmToFpm(v) : v / 12
+  return system === 'metric' ? mpmToFpm(v) : v
 }
 
 export function validateLine(
@@ -75,26 +75,20 @@ export function validateLine(
 
     // WARNING: belt speed exceeds diverter recommended max
     if (beltSpeedFpm > preset.maxBeltSpeed) {
-      const speedDisplay = unitSystem === 'imperial'
-        ? `${line.conveyor.speed.toFixed(0)} in/min`
-        : `${beltSpeedFpm.toFixed(0)} ft/min`
       results.push({
         severity: 'warning',
         field: `exits[${idx}].diverterType`,
-        message: `Belt speed ${speedDisplay} exceeds ${preset.label} recommended maximum of ${preset.maxBeltSpeed} ft/min.`,
+        message: `Belt speed ${beltSpeedFpm.toFixed(0)} ft/min exceeds ${preset.label} recommended maximum of ${preset.maxBeltSpeed} ft/min.`,
       })
     }
   })
 
   // ── WARNING: PLC latency > 20 ms at speed > 200 fpm ───────────────────────
   if (line.feed.plcLatencyMs > 20 && beltSpeedFpm > 200) {
-    const speedDisplay = unitSystem === 'imperial'
-      ? `${line.conveyor.speed.toFixed(0)} in/min`
-      : `${beltSpeedFpm.toFixed(0)} ft/min`
     results.push({
       severity: 'warning',
       field: 'feed.plcLatencyMs',
-      message: `PLC latency ${line.feed.plcLatencyMs} ms is high for belt speed ${speedDisplay}. Consider < 20 ms.`,
+      message: `PLC latency ${line.feed.plcLatencyMs} ms is high for belt speed ${beltSpeedFpm.toFixed(0)} ft/min. Consider < 20 ms.`,
     })
   }
 

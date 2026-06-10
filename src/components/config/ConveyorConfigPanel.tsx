@@ -23,7 +23,7 @@ export function ConveyorConfigPanel({ line }: Props) {
 
   const gapSec = gapTimeSec(
     unitSystem === 'imperial' ? line.conveyor.minGapDistance : line.conveyor.minGapDistance / 25.4,
-    unitSystem === 'imperial' ? line.conveyor.speed / 12 : line.conveyor.speed / 0.3048,
+    unitSystem === 'imperial' ? line.conveyor.speed : line.conveyor.speed / 0.3048,
   )
 
   return (
@@ -52,12 +52,12 @@ export function ConveyorConfigPanel({ line }: Props) {
 
       <InputField
         label="Belt Speed"
-        value={+line.conveyor.speed.toFixed(0)}
+        value={+line.conveyor.speed.toFixed(1)}
         onChange={v => updateConveyor(line.id, { speed: v as number })}
         unit={speedUnit}
-        min={12}
-        max={unitSystem === 'imperial' ? 7200 : 183}
-        step={unitSystem === 'imperial' ? 60 : 1}
+        min={1}
+        max={unitSystem === 'imperial' ? 600 : 183}
+        step={unitSystem === 'imperial' ? 5 : 1}
       />
       <ValidationBadge results={fieldResults(validationResults, 'conveyor.speed')} />
 

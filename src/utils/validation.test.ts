@@ -7,7 +7,7 @@ function baseLine(): ConveyorLineConfig {
   return {
     id: 'l1',
     name: 'Line 1',
-    conveyor: { length: 1200, width: 36, speed: 2400, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
+    conveyor: { length: 1200, width: 36, speed: 200, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
     exits: [makeExit(0, 30)],
     feed: { mode: 'horizontal', targetPPM: 30, mixedDimensions: false, singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10 },
     skus: [makeSKU(100)],
@@ -71,7 +71,7 @@ describe('validateLine', () => {
 
   it('CRITICAL: targetPPM exceeds achievable throughput', () => {
     const line = baseLine()
-    line.feed.targetPPM = 500  // impossible at 2400 in/min (200 fpm) with 12 in product
+    line.feed.targetPPM = 500  // impossible at 200 ft/min with 12 in product
     const results = validateLine(line, 'imperial')
     expect(results.some(r => r.severity === 'critical' && r.field === 'feed.targetPPM')).toBe(true)
   })
@@ -85,14 +85,14 @@ describe('validateLine', () => {
 
   it('WARNING: belt speed exceeds diverter recommended maximum', () => {
     const line = baseLine()
-    line.conveyor.speed = 6000  // 6000 in/min = 500 fpm > 400 fpm max for sliding_shoe
+    line.conveyor.speed = 500  // ft/min > 400 ft/min max for sliding_shoe
     const results = validateLine(line, 'imperial')
     expect(results.some(r => r.severity === 'warning' && r.field.startsWith('exits['))).toBe(true)
   })
 
-  it('WARNING: PLC latency > 20 ms at speed > 200 fpm', () => {
+  it('WARNING: PLC latency > 20 ms at speed > 200 ft/min', () => {
     const line = baseLine()
-    line.conveyor.speed = 3000  // 3000 in/min = 250 fpm > 200 fpm threshold
+    line.conveyor.speed = 250  // ft/min > 200 ft/min threshold
     line.feed.plcLatencyMs = 30
     const results = validateLine(line, 'imperial')
     expect(results.some(r => r.severity === 'warning' && r.field === 'feed.plcLatencyMs')).toBe(true)

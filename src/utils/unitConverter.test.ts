@@ -39,8 +39,8 @@ describe('unitConverter', () => {
     expect(fpmToMpm(100)).toBeCloseTo(30.48, 6)
   })
 
-  it('unitLabel: speed imperial = in/min', () => {
-    expect(unitLabel('speed', 'imperial')).toBe('in/min')
+  it('unitLabel: speed imperial = ft/min', () => {
+    expect(unitLabel('speed', 'imperial')).toBe('ft/min')
   })
 
   it('unitLabel: speed metric = m/min', () => {
@@ -53,16 +53,16 @@ describe('unitConverter', () => {
 
   it('convertLineConfig: imperial→metric converts conveyor speed', () => {
     const line = makeMinimalLine()
-    line.conveyor.speed = 2400  // in/min (≡ 200 ft/min)
+    line.conveyor.speed = 200  // ft/min
     const converted = convertLineConfig(line, 'imperial', 'metric')
     expect(converted.conveyor.speed).toBeCloseTo(fpmToMpm(200), 5)
   })
 
   it('convertLineConfig: same system returns unchanged values', () => {
     const line = makeMinimalLine()
-    line.conveyor.speed = 2400
+    line.conveyor.speed = 200
     const converted = convertLineConfig(line, 'imperial', 'imperial')
-    expect(converted.conveyor.speed).toBe(2400)
+    expect(converted.conveyor.speed).toBe(200)
   })
 
   it('convertLineConfig: imperial→metric converts exit distanceFromInfeed', () => {
@@ -98,7 +98,7 @@ function makeMinimalLine(): ConveyorLineConfig {
   return {
     id: 'l1',
     name: 'Line 1',
-    conveyor: { length: 1200, width: 36, speed: 2400, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
+    conveyor: { length: 1200, width: 36, speed: 200, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
     exits: [],
     feed: { mode: 'horizontal', targetPPM: 30, mixedDimensions: false, singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10 },
     skus: [],

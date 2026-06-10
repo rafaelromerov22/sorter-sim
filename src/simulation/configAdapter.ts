@@ -11,7 +11,7 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
     distanceFromInfeedFt: m ? mToFt(e.distanceFromInfeed) : e.distanceFromInfeed / 12,
     diverterCycleTimeSec: e.diverterCycleTime,
     maxQueueDepth: e.maxQueueDepth,
-    laneExitSpeedFpm: m ? mpmToFpm(e.exitSpeed) : e.exitSpeed / 12,
+    laneExitSpeedFpm: m ? mpmToFpm(e.exitSpeed) : e.exitSpeed,
     laneLengthFt: m ? mToFt(e.laneLength) : e.laneLength / 12,
   }))
 
@@ -25,7 +25,7 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
   }))
 
   return {
-    beltSpeedFpm: m ? mpmToFpm(line.conveyor.speed) : line.conveyor.speed / 12,
+    beltSpeedFpm: m ? mpmToFpm(line.conveyor.speed) : line.conveyor.speed,
     beltLengthFt: m ? mToFt(line.conveyor.length) : line.conveyor.length / 12,
     minGapIn: m ? mmToIn(line.conveyor.minGapDistance) : line.conveyor.minGapDistance,
     availabilityFactor: line.conveyor.availabilityFactor,

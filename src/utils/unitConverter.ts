@@ -22,7 +22,7 @@ export type Dimension = 'length' | 'speed' | 'weight' | 'smallLength'
 export function toMetric(v: number, dim: Dimension): number {
   switch (dim) {
     case 'length':      return inToM(v)        // in → m
-    case 'speed':       return inpmToMpm(v)    // in/min → m/min
+    case 'speed':       return fpmToMpm(v)     // ft/min → m/min
     case 'weight':      return lbsToKg(v)
     case 'smallLength': return inToMm(v)
   }
@@ -31,7 +31,7 @@ export function toMetric(v: number, dim: Dimension): number {
 export function toImperial(v: number, dim: Dimension): number {
   switch (dim) {
     case 'length':      return mToIn(v)        // m → in
-    case 'speed':       return mpmToInpm(v)    // m/min → in/min
+    case 'speed':       return mpmToFpm(v)     // m/min → ft/min
     case 'weight':      return kgToLbs(v)
     case 'smallLength': return mmToIn(v)
   }
@@ -40,7 +40,7 @@ export function toImperial(v: number, dim: Dimension): number {
 export function unitLabel(dim: Dimension, system: UnitSystem): string {
   const map: Record<Dimension, { imperial: string; metric: string }> = {
     length:      { imperial: 'in',     metric: 'm'     },
-    speed:       { imperial: 'in/min', metric: 'm/min' },
+    speed:       { imperial: 'ft/min', metric: 'm/min' },
     weight:      { imperial: 'lbs',    metric: 'kg'    },
     smallLength: { imperial: 'in',     metric: 'mm'    },
   }
