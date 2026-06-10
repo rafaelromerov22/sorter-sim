@@ -58,7 +58,9 @@ export function convertLineConfig(
       width:          cv(line.conveyor.width,          'length'),
       speed:          cv(line.conveyor.speed,          'speed'),
       minGapDistance: cv(line.conveyor.minGapDistance, 'smallLength'),
-      // availabilityFactor, encoderResolution: dimensionless — no conversion
+      // availabilityFactor: dimensionless — no conversion
+      // TODO: encoderResolution is 'pulses per ft|m' — needs conversion in a future pass
+      //       100 pulses/ft → 328 pulses/m when switching to metric
     },
     exits: line.exits.map((e): ExitConfig => ({
       ...e,

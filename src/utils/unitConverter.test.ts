@@ -64,6 +64,34 @@ describe('unitConverter', () => {
     const converted = convertLineConfig(line, 'imperial', 'imperial')
     expect(converted.conveyor.speed).toBe(200)
   })
+
+  it('convertLineConfig: imperial→metric converts exit distanceFromInfeed', () => {
+    const line = makeMinimalLine()
+    line.exits = [{
+      id: 'e1', index: 0, side: 'right', distanceFromInfeed: 20,
+      laneWidth: 3, laneLength: 10, exitSpeed: 150, maxQueueDepth: 10,
+      angle: 45, diverterType: 'sliding_shoe', diverterCycleTime: 0.4,
+      diverterExtendTime: 0.2, diverterRetractTime: 0.2, sensorOffset: 2, priority: 0,
+    }]
+    const converted = convertLineConfig(line, 'imperial', 'metric')
+    expect(converted.exits[0].distanceFromInfeed).toBeCloseTo(ftToM(20), 5)
+    // diverterCycleTime must NOT be converted (it's in seconds)
+    expect(converted.exits[0].diverterCycleTime).toBe(0.4)
+  })
+
+  it('convertLineConfig: imperial→metric converts SKU dimensions and weight', () => {
+    const line = makeMinimalLine()
+    line.skus = [{
+      id: 's1', name: 'Box', length: 12, width: 8, height: 6, weight: 5,
+      orientation: 'long_axis_parallel', packagingType: 'rigid_carton',
+      cogHeight: 3, distributionPercent: 100, assignedExitId: null, color: '#3b82f6',
+    }]
+    const converted = convertLineConfig(line, 'imperial', 'metric')
+    expect(converted.skus[0].length).toBeCloseTo(inToMm(12), 5)
+    expect(converted.skus[0].weight).toBeCloseTo(lbsToKg(5), 5)
+    // distributionPercent must NOT be converted
+    expect(converted.skus[0].distributionPercent).toBe(100)
+  })
 })
 
 function makeMinimalLine(): ConveyorLineConfig {
