@@ -99,7 +99,7 @@ function drawPackageInLane(
   const exit = exits.find(e => e.id === pkg.assignedExitId)
   if (!exit) return
   const sku = skuMap.get(pkg.skuId)
-  const color = sku?.color ?? '#3b82f6'
+  const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
   const pkgWidthFt = sku?.widthFt ?? 0.5
   const posIdx = lanePositionOf(pkg, packages, simTime)
 
