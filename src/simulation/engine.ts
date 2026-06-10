@@ -34,6 +34,7 @@ export function runSimulation(input: SimInput): SimRunResult {
   const packages: SimPackage[] = []
   const jamEvents: JamEvent[] = []
   let noReadCount = 0
+  let unroutedCount = 0
   let recirculationCount = 0
   let completedCount = 0
   let jamCount = 0
@@ -76,7 +77,7 @@ export function runSimulation(input: SimInput): SimRunResult {
     let arrivalAtDiverterSec: number | null = null
 
     if (!assignedExitId) {
-      if (scanSuccess) noReadCount++ // scan succeeded but SKU had no assigned exit
+      if (scanSuccess) unroutedCount++ // scan succeeded but SKU had no assigned exit
       outcome = 'no_read'
     } else {
       const exit = input.exits.find(e => e.id === assignedExitId)
@@ -165,6 +166,7 @@ export function runSimulation(input: SimInput): SimRunResult {
     completedPackages: completedCount,
     jamCount,
     noReadCount,
+    unroutedCount,
     recirculationCount,
     overflowCount,
     actualPPM,

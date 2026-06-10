@@ -4,19 +4,29 @@ interface Props {
   results: SimulationResults
 }
 
-function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Kpi({ label, value, sub, warn }: { label: string; value: string; sub?: string; warn?: boolean }) {
   return (
-    <div className="flex flex-col items-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-center">
+    <div className={`flex flex-col items-center rounded-lg border px-4 py-3 text-center ${warn ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-white'}`}>
       <span className="text-xs text-gray-400">{label}</span>
-      <span className="mt-1 text-2xl font-semibold tabular-nums text-gray-800">{value}</span>
+      <span className={`mt-1 text-2xl font-semibold tabular-nums ${warn ? 'text-amber-700' : 'text-gray-800'}`}>{value}</span>
       {sub && <span className="text-xs text-gray-400">{sub}</span>}
     </div>
   )
 }
 
 export function SimResults({ results }: Props) {
+  const hasUnrouted = results.unroutedCount > 0
+
   return (
     <div className="flex flex-col gap-4 overflow-y-auto p-4">
+      {/* Unrouted warning banner */}
+      {hasUnrouted && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span className="font-semibold">{results.unroutedCount} packages unrouted</span> — their SKUs were scanned
+          successfully but have no exit assigned. Go to the Products tab and assign each SKU to an exit.
+        </div>
+      )}
+
       {/* KPI row */}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         <Kpi label="Actual PPM"    value={results.actualPPM.toFixed(1)} />
@@ -26,9 +36,9 @@ export function SimResults({ results }: Props) {
           value={`${results.efficiencyPercent.toFixed(1)}%`}
           sub={results.efficiencyPercent >= 80 ? 'Good' : results.efficiencyPercent >= 50 ? 'Fair' : 'Poor'}
         />
-        <Kpi label="Packages"   value={results.totalPackages.toString()} />
-        <Kpi label="Jams"       value={results.jamCount.toString()} />
-        <Kpi label="No-Reads"   value={results.noReadCount.toString()} />
+        <Kpi label="Packages"  value={results.totalPackages.toString()} />
+        <Kpi label="Jams"      value={results.jamCount.toString()} />
+        <Kpi label="No-Reads"  value={results.noReadCount.toString()} />
       </div>
 
       {/* Exit table */}
@@ -80,7 +90,7 @@ export function SimResults({ results }: Props) {
       {/* Run metadata */}
       <p className="text-xs text-gray-300">
         Simulated {results.totalPackages} packages over {results.runDurationSec.toFixed(0)}s
-        · {results.recirculationCount} recirculated · {results.overflowCount} overflow
+        · {results.unroutedCount} unrouted · {results.recirculationCount} recirculated · {results.overflowCount} overflow
       </p>
     </div>
   )

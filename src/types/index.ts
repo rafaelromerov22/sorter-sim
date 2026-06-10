@@ -150,6 +150,7 @@ export interface SimulationResults {
   completedPackages: number
   jamCount: number
   noReadCount: number
+  unroutedCount: number
   recirculationCount: number
   overflowCount: number
   actualPPM: number

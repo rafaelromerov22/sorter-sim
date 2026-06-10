@@ -363,6 +363,7 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
         completedPackages:  full.completedPackages,
         jamCount:           full.jamCount,
         noReadCount:        full.noReadCount,
+        unroutedCount:      full.unroutedCount,
         recirculationCount: full.recirculationCount,
         overflowCount:      full.overflowCount,
         actualPPM:          full.actualPPM,
