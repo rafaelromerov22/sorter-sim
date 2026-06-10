@@ -4,7 +4,7 @@ import {
   ftToM, mToFt,
   inToMm, mmToIn,
   lbsToKg, kgToLbs,
-  fpmToMpm, mpmToFpm,
+  fpmToMpm,
   unitLabel,
   convertLineConfig,
 } from './unitConverter'

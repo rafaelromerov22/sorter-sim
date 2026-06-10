@@ -2,16 +2,13 @@
 import type { ConveyorLineConfig, ValidationResult, UnitSystem } from '../types'
 import { DIVERTER_PRESETS } from '../constants/diverterPresets'
 import { achievablePPM } from './throughputCalc'
-import { mmToIn, mToFt, mpmToFpm } from './unitConverter'
+import { mmToIn, mpmToFpm } from './unitConverter'
 
 /**
  * Convert a value in the active unit system to imperial inches (for product dimensions)
  */
 function toImperialIn(v: number, system: UnitSystem): number {
   return system === 'metric' ? mmToIn(v) : v
-}
-function toImperialFt(v: number, system: UnitSystem): number {
-  return system === 'metric' ? mToFt(v) : v
 }
 function toImperialFpm(v: number, system: UnitSystem): number {
   return system === 'metric' ? mpmToFpm(v) : v
