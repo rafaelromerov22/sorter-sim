@@ -379,10 +379,11 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
         })),
         jamEvents: full.jamEvents.slice(0, 20),
       }
+      const lineId = activeLineId as string
       set(s => ({
         simLoading: false,
-        simResultsByLine: { ...s.simResultsByLine, [activeLineId]: summary },
-        simFullResultByLine: { ...s.simFullResultByLine, [activeLineId]: full },
+        simResultsByLine: { ...s.simResultsByLine, [lineId]: summary },
+        simFullResultByLine: { ...s.simFullResultByLine, [lineId]: full },
       }))
     } catch (e) {
       set({ simLoading: false, error: e instanceof Error ? e.message : 'Simulation failed' })
