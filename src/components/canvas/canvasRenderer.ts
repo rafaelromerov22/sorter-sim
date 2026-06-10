@@ -12,6 +12,13 @@ export interface CanvasExit {
   laneLengthFt: number
 }
 
+export interface SkuRenderInfo {
+  color: string
+  lengthFt: number
+  widthFt: number
+  orientation: 'long_axis_parallel' | 'long_axis_perpendicular'
+}
+
 export interface RenderInput {
   ctx: CanvasRenderingContext2D
   canvasWidth: number
@@ -21,8 +28,20 @@ export interface RenderInput {
   beltWidthFt: number
   beltSpeedFpm: number
   exits: CanvasExit[]
-  skuMap: Map<string, { color: string; widthFt: number }>
+  skuMap: Map<string, SkuRenderInfo>
   packages: SimPackage[]
+}
+
+// Belt-direction footprint: length when parallel, width when perpendicular
+function beltDimFt(pkg: SimPackage, sku: SkuRenderInfo | undefined): number {
+  if (!sku) return pkg.lengthFt
+  return sku.orientation === 'long_axis_perpendicular' ? sku.widthFt : sku.lengthFt
+}
+
+// Cross-belt footprint: width when parallel, length when perpendicular
+function crossDimFt(_pkg: SimPackage, sku: SkuRenderInfo | undefined): number {
+  if (!sku) return 0.5
+  return sku.orientation === 'long_axis_perpendicular' ? sku.lengthFt : sku.widthFt
 }
 
 // Outcome overrides SKU color for failed packages
@@ -84,12 +103,11 @@ function drawPackageOnBelt(
   const xFt = packageBeltXFt(pkg, simTime, beltSpeedFpm)
   if (xFt === null) return
   const sku = skuMap.get(pkg.skuId)
-  const pkgWidthFt = sku?.widthFt ?? 0.5
   const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
 
   const px = xFt * scale
-  const pw = Math.max(2, pkg.lengthFt * scale)
-  const ph = Math.max(2, pkgWidthFt * scale)
+  const pw = Math.max(2, beltDimFt(pkg, sku) * scale)
+  const ph = Math.max(2, crossDimFt(pkg, sku) * scale)
   const py = canvasHeight / 2 - ph / 2
 
   ctx.fillStyle = color
@@ -114,15 +132,14 @@ function drawPackageInLane(
   if (!exit) return
   const sku = skuMap.get(pkg.skuId)
   const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
-  const pkgWidthFt = sku?.widthFt ?? 0.5
 
   const exitXPx = exit.distanceFromInfeedFt * scale
   const originY = exit.side === 'left' ? beltTop : beltBottom
   const angleRad = (exit.angle * Math.PI) / 180
   const canvasAngle = exit.side === 'right' ? angleRad : -angleRad
 
-  const pkgLenPx = Math.max(2, pkg.lengthFt * scale)
-  const pkgWPx = Math.max(2, pkgWidthFt * scale)
+  const pkgLenPx = Math.max(2, beltDimFt(pkg, sku) * scale)
+  const pkgWPx   = Math.max(2, crossDimFt(pkg, sku) * scale)
   const GAP_PX = 2
 
   // Sum the actual rendered lengths of all packages that arrived before this one
@@ -133,7 +150,10 @@ function drawPackageInLane(
     p.arrivalAtDiverterSec < (pkg.arrivalAtDiverterSec ?? Infinity) &&
     simTime >= p.arrivalAtDiverterSec,
   )
-  const offsetPx = priorPkgs.reduce((sum, p) => sum + Math.max(2, p.lengthFt * scale) + GAP_PX, 0)
+  const offsetPx = priorPkgs.reduce((sum, p) => {
+    const ps = skuMap.get(p.skuId)
+    return sum + Math.max(2, beltDimFt(p, ps) * scale) + GAP_PX
+  }, 0)
 
   ctx.save()
   ctx.translate(exitXPx, originY)

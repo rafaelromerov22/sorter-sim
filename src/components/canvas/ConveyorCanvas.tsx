@@ -22,7 +22,12 @@ function buildSkuMap(line: ConveyorLineConfig, us: UnitSystem) {
   return new Map(
     line.skus.map(sku => [
       sku.id,
-      { color: sku.color, widthFt: skuDimToFt(sku.width, us) },
+      {
+        color:       sku.color,
+        lengthFt:    skuDimToFt(sku.length, us),
+        widthFt:     skuDimToFt(sku.width, us),
+        orientation: sku.orientation,
+      },
     ]),
   )
 }
