@@ -1,6 +1,7 @@
 // src/store/configStore.ts
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
+import { useProjectStore } from './projectStore'
 import type {
   ConveyorConfig, ConveyorLineConfig, ExitConfig, FeedConfig,
   ProductSKU, ProjectConfig, ProjectVersion, UnitSystem,
@@ -288,8 +289,11 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
       return
     }
     const config = (data as ProjectVersion).config_json
+    const storedUnitSystem: UnitSystem = config.unitSystem ?? 'imperial'
+    useProjectStore.getState().setUnitSystem(storedUnitSystem)
     set({
       configLoading: false,
+      unitSystem: storedUnitSystem,
       lines: config.lines,
       activeLineId: config.lines[0]?.id ?? null,
       isDirty: false,
