@@ -1,5 +1,6 @@
 // src/components/config/ProductConfigPanel.tsx
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useConfigStore } from '../../store/configStore'
 import { useProjectStore } from '../../store/projectStore'
 import { InputField } from '../shared/InputField'
@@ -24,9 +25,9 @@ const ORIENTATION_OPTIONS: { value: ProductOrientation; label: string }[] = [
 ]
 
 export function ProductConfigPanel({ line }: Props) {
-  const { addSKU, updateSKU, removeSKU } = useConfigStore(s => ({
+  const { addSKU, updateSKU, removeSKU } = useConfigStore(useShallow(s => ({
     addSKU: s.addSKU, updateSKU: s.updateSKU, removeSKU: s.removeSKU,
-  }))
+  })))
   const unitSystem = useProjectStore(s => s.unitSystem)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 

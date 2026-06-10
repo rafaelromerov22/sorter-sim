@@ -1,5 +1,6 @@
 // src/components/project/VersionHistory.tsx
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useConfigStore } from '../../store/configStore'
 import type { ProjectVersion } from '../../types'
 
@@ -8,13 +9,13 @@ export function VersionHistory() {
   const [labelInput, setLabelInput] = useState('')
 
   const { versions, versionsLoading, saveLoading, saveVersion, restoreVersion } =
-    useConfigStore(s => ({
+    useConfigStore(useShallow(s => ({
       versions:       s.versions,
       versionsLoading: s.versionsLoading,
       saveLoading:    s.saveLoading,
       saveVersion:    s.saveVersion,
       restoreVersion: s.restoreVersion,
-    }))
+    })))
 
   async function handleSave() {
     await saveVersion(labelInput.trim() || undefined)

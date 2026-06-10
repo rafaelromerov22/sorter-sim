@@ -1,5 +1,6 @@
 // src/components/config/ExitConfigPanel.tsx
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useConfigStore } from '../../store/configStore'
 import { useProjectStore } from '../../store/projectStore'
 import { InputField } from '../shared/InputField'
@@ -34,11 +35,11 @@ const DIVERTER_OPTIONS: { value: DiverterType; label: string }[] = [
 ]
 
 export function ExitConfigPanel({ line }: Props) {
-  const { addExit, updateExit, removeExit } = useConfigStore(s => ({
+  const { addExit, updateExit, removeExit } = useConfigStore(useShallow(s => ({
     addExit: s.addExit,
     updateExit: s.updateExit,
     removeExit: s.removeExit,
-  }))
+  })))
   const unitSystem = useProjectStore(s => s.unitSystem)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 

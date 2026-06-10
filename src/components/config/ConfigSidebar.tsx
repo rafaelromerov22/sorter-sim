@@ -1,5 +1,6 @@
 // src/components/config/ConfigSidebar.tsx
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useConfigStore } from '../../store/configStore'
 import { useProjectStore } from '../../store/projectStore'
 import { ConveyorConfigPanel } from './ConveyorConfigPanel'
@@ -20,13 +21,13 @@ const TABS: { id: Tab; label: string }[] = [
 export function ConfigSidebar() {
   const [activeTab, setActiveTab] = useState<Tab>('conveyor')
 
-  const { lines, activeLineId, isDirty, saveLoading, saveVersion } = useConfigStore(s => ({
+  const { lines, activeLineId, isDirty, saveLoading, saveVersion } = useConfigStore(useShallow(s => ({
     lines:        s.lines,
     activeLineId: s.activeLineId,
     isDirty:      s.isDirty,
     saveLoading:  s.saveLoading,
     saveVersion:  s.saveVersion,
-  }))
+  })))
   const unitSystem = useProjectStore(s => s.unitSystem)
 
   const line = lines.find(l => l.id === activeLineId)

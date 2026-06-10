@@ -1,10 +1,11 @@
 // src/components/project/LinesTabs.tsx
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useConfigStore } from '../../store/configStore'
 
 export function LinesTabs() {
   const { lines, activeLineId, setActiveLineId, addLine, removeLine, renameLine, duplicateLine } =
-    useConfigStore(s => ({
+    useConfigStore(useShallow(s => ({
       lines:           s.lines,
       activeLineId:    s.activeLineId,
       setActiveLineId: s.setActiveLineId,
@@ -12,7 +13,7 @@ export function LinesTabs() {
       removeLine:      s.removeLine,
       renameLine:      s.renameLine,
       duplicateLine:   s.duplicateLine,
-    }))
+    })))
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
