@@ -1,5 +1,5 @@
 // src/components/project/ProjectWorkspace.tsx
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
 import { Header } from '../shared/Header'
@@ -7,9 +7,12 @@ import { LinesTabs } from './LinesTabs'
 import { ConfigSidebar } from '../config/ConfigSidebar'
 import { VersionHistory } from './VersionHistory'
 import { SimResults } from './SimResults'
+import { KpiStrip } from './KpiStrip'
+import { ConveyorCanvas } from '../canvas/ConveyorCanvas'
 import { useConfigStore } from '../../store/configStore'
 import { useProjectStore } from '../../store/projectStore'
-import { KpiStrip } from './KpiStrip'
+
+type CenterTab = 'results' | 'canvas'
 
 export function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>()
@@ -27,6 +30,8 @@ export function ProjectWorkspace() {
   const unitSystem = useProjectStore(s => s.unitSystem)
   const project    = projects.find(p => p.id === id)
 
+  const [centerTab, setCenterTab] = useState<CenterTab>('results')
+
   useEffect(() => {
     if (!id) return
     loadConfig(id, project?.name ?? 'Untitled Project', project?.unit_system ?? unitSystem)
@@ -41,6 +46,11 @@ export function ProjectWorkspace() {
         </div>
       </div>
     )
+  }
+
+  const handleRun = () => {
+    setCenterTab('results')
+    runSimulation()
   }
 
   return (
@@ -62,7 +72,7 @@ export function ProjectWorkspace() {
             </div>
             <div className="shrink-0 px-3">
               <button
-                onClick={() => runSimulation()}
+                onClick={handleRun}
                 disabled={simLoading}
                 className="rounded bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
@@ -71,16 +81,41 @@ export function ProjectWorkspace() {
             </div>
           </div>
 
-          {/* Canvas / results area */}
+          {/* Results / Canvas view tabs — only shown when results exist */}
+          {simResults && !simLoading && (
+            <div className="flex border-b border-gray-200 bg-white px-4">
+              {(['results', 'canvas'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setCenterTab(tab)}
+                  className={`border-b-2 px-3 py-2 text-sm font-medium capitalize transition-colors ${
+                    centerTab === tab
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {tab === 'canvas' ? 'Canvas' : 'Results'}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Content area */}
           <div className="flex flex-1 overflow-hidden bg-gray-100">
             {simLoading ? (
               <div className="flex flex-1 items-center justify-center">
                 <p className="text-sm text-gray-400">Running simulation…</p>
               </div>
             ) : simResults ? (
-              <div className="flex-1 overflow-y-auto">
-                <SimResults results={simResults} />
-              </div>
+              centerTab === 'canvas' ? (
+                <div className="flex-1 overflow-hidden">
+                  <ConveyorCanvas />
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto">
+                  <SimResults results={simResults} />
+                </div>
+              )
             ) : (
               <div className="flex flex-1 items-center justify-center">
                 <div className="text-center">
