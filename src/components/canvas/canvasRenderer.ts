@@ -39,22 +39,35 @@ function drawExitLane(
   scale: number,
   beltTop: number,
   beltBottom: number,
+  exitIndex: number,
 ): void {
   const exitXPx = exit.distanceFromInfeedFt * scale
   const originY = exit.side === 'left' ? beltTop : beltBottom
   const angleRad = (exit.angle * Math.PI) / 180
   const canvasAngle = exit.side === 'right' ? angleRad : -angleRad
   const laneLenPx = exit.laneLengthFt * scale
-  const laneWPx = exit.laneWidthFt * scale
+  const laneWPx = Math.max(12, exit.laneWidthFt * scale)
 
   ctx.save()
   ctx.translate(exitXPx, originY)
   ctx.rotate(canvasAngle)
-  ctx.setLineDash([5, 5])
-  ctx.strokeStyle = '#9ca3af'
+
+  // Fill lane with light background so it's clearly visible
+  ctx.fillStyle = 'rgba(209,213,219,0.4)'
+  ctx.fillRect(0, -laneWPx / 2, laneLenPx, laneWPx)
+
+  // Lane border
+  ctx.strokeStyle = '#6b7280'
   ctx.lineWidth = 1
   ctx.strokeRect(0, -laneWPx / 2, laneLenPx, laneWPx)
-  ctx.setLineDash([])
+
+  // Exit label (E1, E2…) at start of lane
+  ctx.fillStyle = '#6b7280'
+  ctx.font = `bold ${Math.min(11, laneWPx * 0.4)}px sans-serif`
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(`E${exitIndex + 1}`, 4, 0)
+
   ctx.restore()
 }
 
@@ -133,33 +146,40 @@ export function drawFrame(input: RenderInput): void {
     exits, skuMap, packages,
   } = input
 
-  const scale = canvasWidth / beltLengthFt
+  // Scale to fit all exits within the canvas — exits may be positioned past beltLengthFt
+  const maxExitFt = exits.length > 0
+    ? Math.max(...exits.map(e => e.distanceFromInfeedFt))
+    : 0
+  const renderLengthFt = Math.max(beltLengthFt, maxExitFt) * 1.08 // 8% right margin
+  const scale = canvasWidth / renderLengthFt
+
   const beltH = Math.max(8, beltWidthFt * scale)
   const beltTop = canvasHeight / 2 - beltH / 2
   const beltBottom = beltTop + beltH
+  const beltEndPx = beltLengthFt * scale // physical belt end (may be < canvasWidth)
 
   // Clear
   ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
-  // Belt surface
+  // Belt surface (drawn only to physical belt end)
   ctx.fillStyle = '#f3f4f6'
-  ctx.fillRect(0, beltTop, canvasWidth, beltH)
+  ctx.fillRect(0, beltTop, beltEndPx, beltH)
   ctx.strokeStyle = '#d1d5db'
   ctx.lineWidth = 1
-  ctx.strokeRect(0, beltTop, canvasWidth, beltH)
+  ctx.strokeRect(0, beltTop, beltEndPx, beltH)
 
   // Belt centerline guide
   ctx.setLineDash([8, 8])
   ctx.strokeStyle = '#e5e7eb'
   ctx.beginPath()
   ctx.moveTo(0, canvasHeight / 2)
-  ctx.lineTo(canvasWidth, canvasHeight / 2)
+  ctx.lineTo(beltEndPx, canvasHeight / 2)
   ctx.stroke()
   ctx.setLineDash([])
 
   // Exit lanes (drawn before packages so packages render on top)
-  for (const exit of exits) {
-    drawExitLane(ctx, exit, scale, beltTop, beltBottom)
+  for (let i = 0; i < exits.length; i++) {
+    drawExitLane(ctx, exits[i], scale, beltTop, beltBottom, i)
   }
 
   // Packages on belt

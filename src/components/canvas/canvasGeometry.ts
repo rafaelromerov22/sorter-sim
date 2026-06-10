@@ -16,8 +16,8 @@ export function packageBeltXFt(
 
 /**
  * True while a package is travelling on the main belt surface.
- * A package leaves the belt when it arrives at its diverter OR its
- * leading edge exits the far end of the belt.
+ * - Packages with an assigned exit: visible until arrivalAtDiverterSec (exit may sit past belt end).
+ * - Packages with no exit (no-read, unrouted): visible until leading edge exits belt end.
  */
 export function isOnBelt(
   pkg: SimPackage,
@@ -27,7 +27,9 @@ export function isOnBelt(
 ): boolean {
   const x = packageBeltXFt(pkg, simTime, beltSpeedFpm)
   if (x === null) return false
-  if (pkg.arrivalAtDiverterSec !== null && simTime >= pkg.arrivalAtDiverterSec) return false
+  if (pkg.arrivalAtDiverterSec !== null) {
+    return simTime < pkg.arrivalAtDiverterSec
+  }
   return x < beltLengthFt
 }
 

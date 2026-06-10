@@ -55,6 +55,11 @@ describe('isOnBelt', () => {
     // 120fpm=2fps; infeed at 0; at t=50 x=100ft === beltLength
     expect(isOnBelt(pkg({ infeedTimeSec: 0, arrivalAtDiverterSec: null, outcome: 'no_read' }), 50, 100, 120)).toBe(false)
   })
+  it('true for package with exit beyond belt length, before arrival', () => {
+    // exit at 150ft, beltLength=100ft — package stays on belt until arrivalAtDiverterSec
+    // at t=60, x=120ft > beltLength but simTime(60) < arrivalAtDiverterSec(75)
+    expect(isOnBelt(pkg({ infeedTimeSec: 0, arrivalAtDiverterSec: 75, outcome: 'diverted' }), 60, 100, 120)).toBe(true)
+  })
 })
 
 describe('isInExitLane', () => {
