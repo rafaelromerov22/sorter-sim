@@ -76,6 +76,7 @@ export function runSimulation(input: SimInput): SimRunResult {
     let arrivalAtDiverterSec: number | null = null
 
     if (!assignedExitId) {
+      if (scanSuccess) noReadCount++ // scan succeeded but SKU had no assigned exit
       outcome = 'no_read'
     } else {
       const exit = input.exits.find(e => e.id === assignedExitId)
@@ -122,7 +123,7 @@ export function runSimulation(input: SimInput): SimRunResult {
             // Schedule lane departure
             const packageLengthFt = (sku?.lengthIn ?? 12) / 12
             const laneClearSec = packageLengthFt / (exit.laneExitSpeedFpm / 60)
-            const lastDep = pruned.length > 0 ? Math.max(...pruned) : arrivalAtDiverterSec
+            const lastDep = pruned.length > 0 ? pruned[pruned.length - 1] : arrivalAtDiverterSec
             laneQueue[exit.id].push(Math.max(lastDep, arrivalAtDiverterSec) + laneClearSec)
           }
         }
