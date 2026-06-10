@@ -95,8 +95,6 @@ export function ConveyorCanvas() {
     [simFullResult, line, unitSystem],
   )
 
-  // Redraw when simTime changes (handles scrubber seek)
-  useEffect(() => { draw(simTime) }, [simTime, draw])
 
   // ── Animation loop ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -142,6 +140,7 @@ export function ConveyorCanvas() {
     setPlaying(false)
     simTimeRef.current = t
     setSimTime(t)
+    draw(t)
   }
 
   if (!simFullResult || !line) return null
