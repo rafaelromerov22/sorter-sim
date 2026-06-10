@@ -161,6 +161,7 @@ export interface SimulationResults {
     packagesProcessed: number
     packagesPerMin: number
     jamCount: number
+    queueOverflows: number
   }>
   jamEvents: Array<{
     timeSec: number

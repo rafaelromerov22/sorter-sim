@@ -370,6 +370,7 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
           packagesProcessed: e.packagesProcessed,
           packagesPerMin:    e.packagesPerMin,
           jamCount:          e.jamCount,
+          queueOverflows:    e.queueOverflows,
         })),
         jamEvents: full.jamEvents.slice(0, 20),
       }
