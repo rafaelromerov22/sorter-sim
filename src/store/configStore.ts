@@ -263,16 +263,14 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
       .limit(1)
       .single()
 
-    if (error || !data) {
+    if (error && error.code !== 'PGRST116') {
+      set({ configLoading: false, error: error.message })
+      return
+    }
+    if (!data) {
       // No version yet — start with one default line
       const line = defaultLine(0)
-      set({
-        configLoading: false,
-        lines: [line],
-        activeLineId: line.id,
-        isDirty: false,
-        versions: [],
-      })
+      set({ configLoading: false, lines: [line], activeLineId: line.id, isDirty: false, versions: [] })
       return
     }
     const config = (data as ProjectVersion).config_json
@@ -289,32 +287,38 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
     const { projectId, projectName, unitSystem, lines } = get()
     if (!projectId) return
     set({ saveLoading: true, error: null })
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { set({ saveLoading: false, error: 'Not authenticated' }); return }
-
-    const config: ProjectConfig = { projectId, projectName, unitSystem, lines }
-    const { error } = await supabase
-      .from('project_versions')
-      .insert({ project_id: projectId, label: label ?? null, config_json: config, created_by: user.id })
-
-    if (error) { set({ saveLoading: false, error: error.message }); return }
-    set({ saveLoading: false, isDirty: false })
-    get().fetchVersions()
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { set({ saveLoading: false, error: 'Not authenticated' }); return }
+      const config: ProjectConfig = { projectId, projectName, unitSystem, lines }
+      const { error } = await supabase
+        .from('project_versions')
+        .insert({ project_id: projectId, label: label ?? null, config_json: config, created_by: user.id })
+      if (error) { set({ saveLoading: false, error: error.message }); return }
+      set({ saveLoading: false, isDirty: false })
+      get().fetchVersions()
+    } catch (e) {
+      set({ saveLoading: false, error: e instanceof Error ? e.message : 'Save failed' })
+    }
   },
 
   fetchVersions: async () => {
     const { projectId } = get()
     if (!projectId) return
     set({ versionsLoading: true })
-    const { data, error } = await supabase
-      .from('project_versions')
-      .select('id, project_id, version_num, label, created_at, created_by')
-      .eq('project_id', projectId)
-      .order('version_num', { ascending: false })
-    if (!error && data) {
-      set({ versions: data as ProjectVersion[], versionsLoading: false })
-    } else {
-      set({ versionsLoading: false })
+    try {
+      const { data, error } = await supabase
+        .from('project_versions')
+        .select('id, project_id, version_num, label, created_at, created_by')
+        .eq('project_id', projectId)
+        .order('version_num', { ascending: false })
+      if (!error && data) {
+        set({ versions: data as ProjectVersion[], versionsLoading: false })
+      } else {
+        set({ versionsLoading: false })
+      }
+    } catch (e) {
+      set({ versionsLoading: false, error: e instanceof Error ? e.message : 'Fetch failed' })
     }
   },
 
