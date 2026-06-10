@@ -1,7 +1,7 @@
 // src/components/canvas/canvasRenderer.ts
 import type { ExitSide, DivertAngle } from '../../types'
 import type { SimPackage } from '../../simulation/types'
-import { packageBeltXFt, isOnBelt, isInExitLane, lanePositionOf } from './canvasGeometry'
+import { packageBeltXFt, isOnBelt, isInExitLane } from './canvasGeometry'
 
 export interface CanvasExit {
   id: string
@@ -115,7 +115,6 @@ function drawPackageInLane(
   const sku = skuMap.get(pkg.skuId)
   const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
   const pkgWidthFt = sku?.widthFt ?? 0.5
-  const posIdx = lanePositionOf(pkg, packages, simTime)
 
   const exitXPx = exit.distanceFromInfeedFt * scale
   const originY = exit.side === 'left' ? beltTop : beltBottom
@@ -125,7 +124,16 @@ function drawPackageInLane(
   const pkgLenPx = Math.max(2, pkg.lengthFt * scale)
   const pkgWPx = Math.max(2, pkgWidthFt * scale)
   const GAP_PX = 2
-  const offsetPx = posIdx * (pkgLenPx + GAP_PX)
+
+  // Sum the actual rendered lengths of all packages that arrived before this one
+  const priorPkgs = packages.filter(p =>
+    p.assignedExitId === pkg.assignedExitId &&
+    p.outcome === 'diverted' &&
+    p.arrivalAtDiverterSec !== null &&
+    p.arrivalAtDiverterSec < (pkg.arrivalAtDiverterSec ?? Infinity) &&
+    simTime >= p.arrivalAtDiverterSec,
+  )
+  const offsetPx = priorPkgs.reduce((sum, p) => sum + Math.max(2, p.lengthFt * scale) + GAP_PX, 0)
 
   ctx.save()
   ctx.translate(exitXPx, originY)
