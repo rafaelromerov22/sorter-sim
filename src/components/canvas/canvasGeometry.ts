@@ -52,6 +52,7 @@ export function lanePositionOf(
   simTime: number,
 ): number {
   if (!isInExitLane(pkg, simTime)) return 0
+  if (pkg.assignedExitId === null) return 0
   return packages.filter(
     p =>
       p.assignedExitId === pkg.assignedExitId &&

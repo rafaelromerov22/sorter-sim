@@ -51,6 +51,10 @@ describe('isOnBelt', () => {
   it('true for no-read package still within belt length', () => {
     expect(isOnBelt(pkg({ infeedTimeSec: 0, arrivalAtDiverterSec: null, outcome: 'no_read' }), 30, 100, 120)).toBe(true)
   })
+  it('false at exactly belt length (leading edge at boundary)', () => {
+    // 120fpm=2fps; infeed at 0; at t=50 x=100ft === beltLength
+    expect(isOnBelt(pkg({ infeedTimeSec: 0, arrivalAtDiverterSec: null, outcome: 'no_read' }), 50, 100, 120)).toBe(false)
+  })
 })
 
 describe('isInExitLane', () => {
@@ -65,6 +69,9 @@ describe('isInExitLane', () => {
   })
   it('false for no_read outcome', () => {
     expect(isInExitLane(pkg({ outcome: 'no_read', arrivalAtDiverterSec: null }), 30)).toBe(false)
+  })
+  it('false for overflow outcome', () => {
+    expect(isInExitLane(pkg({ outcome: 'overflow', arrivalAtDiverterSec: 20 }), 21)).toBe(false)
   })
 })
 
@@ -81,5 +88,10 @@ describe('lanePositionOf', () => {
   it('returns 0 when simTime is before package arrival', () => {
     const p = pkg({ id: 1, arrivalAtDiverterSec: 20 })
     expect(lanePositionOf(p, [p], 15)).toBe(0)
+  })
+  it('returns 0 for package with null assignedExitId', () => {
+    const p = pkg({ id: 1, assignedExitId: null, arrivalAtDiverterSec: 10 })
+    const p2 = pkg({ id: 2, assignedExitId: null, arrivalAtDiverterSec: 12 })
+    expect(lanePositionOf(p2, [p, p2], 15)).toBe(0)
   })
 })
