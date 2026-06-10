@@ -27,6 +27,7 @@ export function KpiStrip() {
       <Tile label="Sorted"      value={simResults?.completedPackages.toString() ?? '--'} />
       <Tile label="Jams"        value={simResults?.jamCount.toString() ?? '--'} />
       <Tile label="No-Reads"    value={simResults?.noReadCount.toString() ?? '--'} />
+      <Tile label="Run Duration" value={simResults ? `${Math.round(simResults.runDurationSec / 60)} min` : '--'} />
     </div>
   )
 }
