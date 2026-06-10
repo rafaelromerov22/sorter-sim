@@ -107,7 +107,7 @@ export function runSimulation(input: SimInput): SimRunResult {
         } else {
           // Check lane queue — remove stale entries and check capacity
           const queue = laneQueue[exit.id]
-          const pruned = queue.filter(t => t > arrivalAtDiverterSec)
+          const pruned = queue.filter(t => t > arrivalAtDiverterSec!)
           laneQueue[exit.id] = pruned
 
           if (pruned.length >= exit.maxQueueDepth) {

@@ -142,3 +142,32 @@ export interface ValidationResult {
   field: string   // dot-notation path e.g. 'feed.targetPPM' or 'exits[0].diverterType'
   message: string
 }
+
+// ── Simulation results (stored in project_versions.results_json) ─────────────
+export interface SimulationResults {
+  runDurationSec: number
+  totalPackages: number
+  completedPackages: number
+  jamCount: number
+  noReadCount: number
+  recirculationCount: number
+  overflowCount: number
+  actualPPM: number
+  theoreticalMaxPPM: number
+  efficiencyPercent: number
+  exitStats: Array<{
+    exitId: string
+    exitIndex: number
+    packagesProcessed: number
+    packagesPerMin: number
+    jamCount: number
+  }>
+  jamEvents: Array<{
+    timeSec: number
+    exitId: string
+    exitIndex: number
+    packageId: number
+    gapAvailableSec: number
+    gapRequiredSec: number
+  }>
+}

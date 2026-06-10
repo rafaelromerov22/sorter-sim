@@ -6,6 +6,10 @@ import type {
   ProductSKU, ProjectConfig, ProjectVersion, UnitSystem,
 } from '../types'
 import { convertLineConfig } from '../utils/unitConverter'
+import { runSimulation } from '../simulation/engine'
+import { toSimInput } from '../simulation/configAdapter'
+import type { SimulationResults } from '../types'
+import type { SimRunResult } from '../simulation/types'
 
 // ── Default factory functions ─────────────────────────────────────────────────
 function defaultConveyorConfig(): ConveyorConfig {
@@ -115,6 +119,13 @@ interface ConfigStore {
   saveVersion: (label?: string) => Promise<void>
   fetchVersions: () => Promise<void>
   restoreVersion: (version: ProjectVersion) => void
+
+  // Simulation
+  simResults: SimulationResults | null
+  simFullResult: SimRunResult | null
+  simLoading: boolean
+  runSimulation: () => Promise<void>
+  saveSimResults: () => Promise<void>
 }
 
 const INITIAL_STATE = {
@@ -129,6 +140,9 @@ const INITIAL_STATE = {
   saveLoading: false,
   configLoading: false,
   error: null,
+  simResults: null,
+  simFullResult: null,
+  simLoading: false,
 }
 
 // Helper: update a single line in the array by id
@@ -329,5 +343,60 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
       activeLineId: config.lines[0]?.id ?? null,
       isDirty: true,
     })
+  },
+
+  runSimulation: async () => {
+    const { lines, activeLineId, unitSystem } = get()
+    const line = lines.find(l => l.id === activeLineId)
+    if (!line) return
+    set({ simLoading: true, simResults: null, simFullResult: null })
+    try {
+      const input = toSimInput(line, unitSystem)
+      const full = runSimulation(input)
+      const summary: SimulationResults = {
+        runDurationSec:     full.runDurationSec,
+        totalPackages:      full.totalPackages,
+        completedPackages:  full.completedPackages,
+        jamCount:           full.jamCount,
+        noReadCount:        full.noReadCount,
+        recirculationCount: full.recirculationCount,
+        overflowCount:      full.overflowCount,
+        actualPPM:          full.actualPPM,
+        theoreticalMaxPPM:  full.theoreticalMaxPPM,
+        efficiencyPercent:  full.efficiencyPercent,
+        exitStats: full.exitStats.map(e => ({
+          exitId:            e.exitId,
+          exitIndex:         e.exitIndex,
+          packagesProcessed: e.packagesProcessed,
+          packagesPerMin:    e.packagesPerMin,
+          jamCount:          e.jamCount,
+        })),
+        jamEvents: full.jamEvents.slice(0, 20),
+      }
+      set({ simLoading: false, simResults: summary, simFullResult: full })
+    } catch (e) {
+      set({ simLoading: false, error: e instanceof Error ? e.message : 'Simulation failed' })
+    }
+  },
+
+  saveSimResults: async () => {
+    const { projectId, simResults } = get()
+    if (!projectId || !simResults) return
+    try {
+      const { data: latest } = await supabase
+        .from('project_versions')
+        .select('id')
+        .eq('project_id', projectId)
+        .order('version_num', { ascending: false })
+        .limit(1)
+        .single()
+      if (!latest) return
+      await supabase
+        .from('project_versions')
+        .update({ results_json: simResults })
+        .eq('id', latest.id)
+    } catch {
+      // Non-fatal — results still displayed in UI
+    }
   },
 }))
