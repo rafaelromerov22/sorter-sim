@@ -55,12 +55,15 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   createProject: async (name, description) => {
     set({ error: null })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { set({ error: 'Not authenticated' }); return null }
     const { data, error } = await supabase
       .from('projects')
       .insert({
         name,
         description: description ?? null,
         unit_system: get().unitSystem,
+        owner_id: user.id,
       })
       .select()
       .single()
