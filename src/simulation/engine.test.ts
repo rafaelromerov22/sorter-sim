@@ -115,6 +115,16 @@ describe('runSimulation', () => {
     expect(result.efficiencyPercent).toBeCloseTo(expected, 1)
   })
 
+  it('detects exit lane overflow when queue is full', () => {
+    // 1-package queue depth, very fast injection → queue fills immediately
+    const tightExit = baseExit({ maxQueueDepth: 1, laneLengthFt: 100, laneExitSpeedFpm: 10 })
+    const result = runSimulation(baseInput({
+      targetPPM: 60,  // 1 package/sec
+      exits: [tightExit],
+    }))
+    expect(result.overflowCount).toBeGreaterThan(0)
+  })
+
   it('respects availability factor — low availability reduces completedPackages', () => {
     const full  = runSimulation(baseInput({ targetPPM: 30, availabilityFactor: 1.0, randomSeed: 1 }))
     const half  = runSimulation(baseInput({ targetPPM: 30, availabilityFactor: 0.5, randomSeed: 1 }))

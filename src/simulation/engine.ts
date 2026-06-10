@@ -22,11 +22,13 @@ export function runSimulation(input: SimInput): SimRunResult {
   const laneQueue: Record<string, number[]> = {}
   const exitProcessed: Record<string, number> = {}
   const exitJamCount: Record<string, number> = {}
+  const exitOverflowCount: Record<string, number> = {}
   input.exits.forEach(e => {
     diverterAvailableAt[e.id] = 0
     laneQueue[e.id] = []
     exitProcessed[e.id] = 0
     exitJamCount[e.id] = 0
+    exitOverflowCount[e.id] = 0
   })
 
   const packages: SimPackage[] = []
@@ -110,6 +112,7 @@ export function runSimulation(input: SimInput): SimRunResult {
           if (pruned.length >= exit.maxQueueDepth) {
             outcome = 'overflow'
             overflowCount++
+            exitOverflowCount[exit.id]++
           } else {
             outcome = 'diverted'
             completedCount++
@@ -152,7 +155,7 @@ export function runSimulation(input: SimInput): SimRunResult {
     packagesProcessed: exitProcessed[e.id],
     packagesPerMin: runMinutes > 0 ? exitProcessed[e.id] / runMinutes : 0,
     jamCount: exitJamCount[e.id],
-    queueOverflows: 0,
+    queueOverflows: exitOverflowCount[e.id],
   }))
 
   return {
