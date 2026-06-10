@@ -24,7 +24,6 @@ export function KpiStrip() {
     <div className="flex h-16 items-center justify-center gap-1 divide-x divide-gray-100 border-t border-gray-200 bg-white">
       <Tile label="Actual PPM"  value={fmt(simResults?.actualPPM)}           highlight />
       <Tile label="Max PPM"     value={fmt(simResults?.theoreticalMaxPPM)}   />
-      <Tile label="Efficiency"  value={simResults ? `${fmt(simResults.efficiencyPercent)}%` : '--'} />
       <Tile label="Packages"    value={simResults?.totalPackages.toString() ?? '--'} />
       <Tile label="Jams"        value={simResults?.jamCount.toString() ?? '--'} />
       <Tile label="No-Reads"    value={simResults?.noReadCount.toString() ?? '--'} />
