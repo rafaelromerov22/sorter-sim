@@ -31,6 +31,7 @@ function baseInput(overrides: Partial<SimInput> = {}): SimInput {
     minGapIn: 6,
     availabilityFactor: 1.0,
     targetPPM: 20,
+    runDurationSec: 300,
     scanReadRate: 1.0,
     plcLatencyMs: 0,
     recirculationEnabled: false,

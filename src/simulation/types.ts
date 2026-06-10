@@ -7,6 +7,7 @@ export interface SimInput {
   minGapIn: number
   availabilityFactor: number   // 0–1
   targetPPM: number
+  runDurationSec: number
   scanReadRate: number         // 0–1
   plcLatencyMs: number
   recirculationEnabled: boolean

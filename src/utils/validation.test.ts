@@ -9,7 +9,7 @@ function baseLine(): ConveyorLineConfig {
     name: 'Line 1',
     conveyor: { length: 1200, width: 36, speed: 200, minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100 },
     exits: [makeExit(0, 30)],
-    feed: { mode: 'horizontal', targetPPM: 30, mixedDimensions: false, singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10 },
+    feed: { mode: 'horizontal', targetPPM: 30, runDurationSec: 300, mixedDimensions: false, singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10 },
     skus: [makeSKU(100)],
     recirculationEnabled: false,
     recirculationDelaySec: 30,

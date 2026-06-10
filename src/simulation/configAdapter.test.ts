@@ -12,7 +12,7 @@ function makeImperialLine(overrides: Partial<ConveyorLineConfig> = {}): Conveyor
     },
     exits: [],
     feed: {
-      mode: 'horizontal', targetPPM: 30, mixedDimensions: false,
+      mode: 'horizontal', targetPPM: 30, runDurationSec: 300, mixedDimensions: false,
       singulated: true, metered: true, scanReadRate: 0.99, plcLatencyMs: 10,
     },
     skus: [],

@@ -34,6 +34,17 @@ export function FeedConfigPanel({ line }: Props) {
       />
 
       <InputField
+        label="Run Duration"
+        value={Math.round(f.runDurationSec / 60)}
+        onChange={v => updateFeed(line.id, { runDurationSec: (v as number) * 60 })}
+        unit="min"
+        min={1}
+        max={480}
+        step={1}
+        hint={`${f.runDurationSec} seconds`}
+      />
+
+      <InputField
         label="Target Feed Rate"
         value={f.targetPPM}
         onChange={v => updateFeed(line.id, { targetPPM: v as number })}

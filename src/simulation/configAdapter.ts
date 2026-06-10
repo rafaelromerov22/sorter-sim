@@ -30,6 +30,7 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
     minGapIn: m ? mmToIn(line.conveyor.minGapDistance) : line.conveyor.minGapDistance,
     availabilityFactor: line.conveyor.availabilityFactor,
     targetPPM: line.feed.targetPPM,
+    runDurationSec: line.feed.runDurationSec,
     scanReadRate: line.feed.scanReadRate,
     plcLatencyMs: line.feed.plcLatencyMs,
     recirculationEnabled: line.recirculationEnabled,

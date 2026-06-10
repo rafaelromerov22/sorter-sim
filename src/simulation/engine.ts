@@ -3,11 +3,11 @@ import { createRng } from './seededRng'
 import { pickSKU } from './packageFactory'
 import { theoreticalMaxFeedPPM } from '../utils/throughputCalc'
 
-const MAX_PACKAGES = 5_000
-const RUN_DURATION_SEC = 300
+const MAX_PACKAGES = 50_000
 
 export function runSimulation(input: SimInput): SimRunResult {
-  const { beltSpeedFpm, minGapIn, targetPPM, scanReadRate, plcLatencyMs, availabilityFactor } = input
+  const { beltSpeedFpm, minGapIn, targetPPM, runDurationSec, scanReadRate, plcLatencyMs, availabilityFactor } = input
+  const RUN_DURATION_SEC = runDurationSec
   const rng = createRng(input.randomSeed)
   const intervalSec = 60 / targetPPM
 

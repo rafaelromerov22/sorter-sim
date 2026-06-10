@@ -97,6 +97,7 @@ export interface ProductSKU {
 export interface FeedConfig {
   mode: FeedMode
   targetPPM: number
+  runDurationSec: number
   mixedDimensions: boolean
   singulated: boolean
   metered: boolean
