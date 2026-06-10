@@ -1,4 +1,7 @@
 import type { SimulationResults } from '../../types'
+import { ExitThroughputChart } from '../charts/ExitThroughputChart'
+import { OutcomeDonutChart } from '../charts/OutcomeDonutChart'
+import { JamTimelineChart } from '../charts/JamTimelineChart'
 
 interface Props {
   results: SimulationResults
@@ -41,6 +44,23 @@ export function SimResults({ results }: Props) {
         <Kpi label="No-Reads"  value={results.noReadCount.toString()} />
       </div>
 
+      {/* Charts row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3">
+          <ExitThroughputChart results={results} />
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-3">
+          <OutcomeDonutChart results={results} />
+        </div>
+      </div>
+
+      {/* Jam timeline — only when jams exist */}
+      {results.jamEvents.length > 0 && (
+        <div className="rounded-lg border border-gray-200 bg-white p-3">
+          <JamTimelineChart results={results} />
+        </div>
+      )}
+
       {/* Exit table */}
       {results.exitStats.length > 0 && (
         <div>
@@ -70,7 +90,7 @@ export function SimResults({ results }: Props) {
         </div>
       )}
 
-      {/* Jam events */}
+      {/* Jam events list */}
       {results.jamEvents.length > 0 && (
         <div>
           <h3 className="mb-2 text-sm font-medium text-gray-600">

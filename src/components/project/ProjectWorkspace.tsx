@@ -9,6 +9,7 @@ import { VersionHistory } from './VersionHistory'
 import { SimResults } from './SimResults'
 import { useConfigStore } from '../../store/configStore'
 import { useProjectStore } from '../../store/projectStore'
+import { KpiStrip } from './KpiStrip'
 
 export function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>()
@@ -91,10 +92,7 @@ export function ProjectWorkspace() {
             )}
           </div>
 
-          {/* KPI strip — Stage 4 placeholder */}
-          <div className="flex h-16 items-center justify-center border-t border-gray-200 bg-white">
-            <p className="text-xs text-gray-300">KPI Dashboard — Stage 4</p>
-          </div>
+          <KpiStrip />
         </div>
 
         {/* Right: Version history */}
