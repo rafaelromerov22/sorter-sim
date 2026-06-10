@@ -55,6 +55,9 @@ export function runSimulation(input: SimInput): SimRunResult {
     let assignedExitId: string | null = null
     if (scanSuccess && sku) {
       assignedExitId = sku.assignedExitId
+      if (assignedExitId === '__random__' && input.exits.length > 0) {
+        assignedExitId = input.exits[Math.floor(rng() * input.exits.length)].id
+      }
     }
     if (!scanSuccess || !assignedExitId) {
       if (!scanSuccess) noReadCount++

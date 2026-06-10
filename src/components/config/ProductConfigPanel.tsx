@@ -36,7 +36,8 @@ export function ProductConfigPanel({ line }: Props) {
   const weightUnit = unitLabel('weight',      unitSystem)
 
   const exitOptions = [
-    { value: '', label: '— Unassigned —' },
+    { value: '',         label: '— Unassigned —' },
+    { value: '__random__', label: '↔ Random Exit' },
     ...line.exits.map((e, i) => ({ value: e.id, label: `Exit ${i + 1} (${e.side})` })),
   ]
 
@@ -177,7 +178,7 @@ export function ProductConfigPanel({ line }: Props) {
                 label="Assigned Exit"
                 value={sku.assignedExitId ?? ''}
                 options={exitOptions}
-                onChange={v => updateSKU(line.id, sku.id, { assignedExitId: v || null })}
+                onChange={v => updateSKU(line.id, sku.id, { assignedExitId: v === '' ? null : v as string })}
               />
 
               <div className="flex flex-col gap-1">
