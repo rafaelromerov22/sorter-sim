@@ -21,7 +21,7 @@ export function ExitThroughputChart({ results }: Props) {
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip
             contentStyle={{ fontSize: 12 }}
-            formatter={(value: number, name: string) =>
+            formatter={(value, name) =>
               [value, name === 'packages' ? 'Packages' : 'Jams']
             }
           />

@@ -41,9 +41,9 @@ export function JamTimelineChart({ results }: Props) {
           <Tooltip
             cursor={{ strokeDasharray: '3 3' }}
             contentStyle={{ fontSize: 12 }}
-            formatter={(value: number, name: string) => {
-              if (name === 'Time') return [`${value.toFixed(1)}s`, 'Time']
-              if (name === 'Exit') return [`Exit ${(value as number) + 1}`, 'Exit']
+            formatter={(value, name) => {
+              if (name === 'Time') return [`${Number(value).toFixed(1)}s`, 'Time']
+              if (name === 'Exit') return [`Exit ${Number(value) + 1}`, 'Exit']
               return [value, name]
             }}
           />
