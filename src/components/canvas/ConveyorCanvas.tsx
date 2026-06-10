@@ -77,7 +77,10 @@ export function ConveyorCanvas() {
 
       const beltLengthFt = conveyorToFt(line.conveyor.length, unitSystem)
       const beltWidthFt  = conveyorToFt(line.conveyor.width, unitSystem)
-      const beltSpeedFpm = conveyorToFt(line.conveyor.speed, unitSystem)
+      // Speed is ft/min for imperial (not inches), metric is m/min → ft/min
+      const beltSpeedFpm = unitSystem === 'metric'
+        ? line.conveyor.speed * FT_PER_M
+        : line.conveyor.speed
 
       drawFrame({
         ctx,
