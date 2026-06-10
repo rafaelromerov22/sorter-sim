@@ -1,11 +1,10 @@
 // src/components/project/ProjectWorkspace.tsx
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
 import { Header } from '../shared/Header'
 import { LinesTabs } from './LinesTabs'
 import { ConfigSidebar } from '../config/ConfigSidebar'
-import { VersionHistory } from './VersionHistory'
 import { SimResults } from './SimResults'
 import { KpiStrip } from './KpiStrip'
 import { ConveyorCanvas } from '../canvas/ConveyorCanvas'
@@ -17,13 +16,18 @@ type CenterTab = 'results' | 'canvas'
 export function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>()
 
-  const { loadConfig, configLoading, simResults, simLoading, runSimulation } =
+  const { loadConfig, configLoading, simResults, simLoading, runSimulation,
+          isDirty, saveLoading, saveVersion, projectId } =
     useConfigStore(useShallow(s => ({
       loadConfig:    s.loadConfig,
       configLoading: s.configLoading,
       simResults:    s.simResults,
       simLoading:    s.simLoading,
       runSimulation: s.runSimulation,
+      isDirty:       s.isDirty,
+      saveLoading:   s.saveLoading,
+      saveVersion:   s.saveVersion,
+      projectId:     s.projectId,
     })))
 
   const projects   = useProjectStore(s => s.projects)
@@ -31,11 +35,20 @@ export function ProjectWorkspace() {
   const project    = projects.find(p => p.id === id)
 
   const [centerTab, setCenterTab] = useState<CenterTab>('results')
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!id) return
     loadConfig(id, project?.name ?? 'Untitled Project', project?.unit_system ?? unitSystem)
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Autosave 2 s after the last change
+  useEffect(() => {
+    if (!isDirty || !projectId) return
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
+    autosaveTimer.current = setTimeout(() => { saveVersion() }, 2000)
+    return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current) }
+  }, [isDirty, projectId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (configLoading) {
     return (
@@ -70,7 +83,28 @@ export function ProjectWorkspace() {
             <div className="flex-1 overflow-hidden">
               <LinesTabs />
             </div>
-            <div className="shrink-0 px-3">
+            <div className="shrink-0 flex items-center gap-3 px-3">
+              {/* Save status indicator */}
+              {projectId && (
+                <span className="flex items-center gap-1.5 text-xs">
+                  {saveLoading ? (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+                      <span className="text-gray-400">Saving…</span>
+                    </>
+                  ) : isDirty ? (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-gray-300" />
+                      <span className="text-gray-400">Unsaved</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="text-green-600">Saved</span>
+                    </>
+                  )}
+                </span>
+              )}
               <button
                 onClick={handleRun}
                 disabled={simLoading}
@@ -130,8 +164,6 @@ export function ProjectWorkspace() {
           <KpiStrip />
         </div>
 
-        {/* Right: Version history */}
-        <VersionHistory />
       </div>
     </div>
   )
