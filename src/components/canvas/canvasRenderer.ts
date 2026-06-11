@@ -1,7 +1,7 @@
 // src/components/canvas/canvasRenderer.ts
 import type { ExitSide, DivertAngle } from '../../types'
 import type { SimPackage } from '../../simulation/types'
-import { packageBeltXFt, isOnBelt, isInExitLane } from './canvasGeometry'
+import { packageBeltXFt, isOnBelt } from './canvasGeometry'
 
 export interface CanvasExit {
   id: string
