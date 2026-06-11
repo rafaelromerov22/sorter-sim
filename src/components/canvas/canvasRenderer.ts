@@ -1,5 +1,5 @@
 // src/components/canvas/canvasRenderer.ts
-import type { ExitSide, DivertAngle } from '../../types'
+import type { ExitSide, DivertAngle, DiverterType } from '../../types'
 import type { SimPackage } from '../../simulation/types'
 import { packageBeltXFt, isOnBelt } from './canvasGeometry'
 
@@ -7,6 +7,7 @@ export interface CanvasExit {
   id: string
   side: ExitSide
   angle: DivertAngle
+  diverterType: DiverterType
   distanceFromInfeedFt: number
   laneWidthFt: number
   laneLengthFt: number
@@ -52,6 +53,89 @@ const OUTCOME_COLORS: Partial<Record<string, string>> = {
   no_read:         '#9ca3af',
   overflow:        '#9ca3af',
   recirculated:    '#d1d5db',
+}
+
+// Draw a diverter symbol on the belt surface at the exit position.
+// Drawn in belt coordinates (no lane rotation) so it always appears flat on the belt.
+function drawDiverterSymbol(
+  ctx: CanvasRenderingContext2D,
+  exit: CanvasExit,
+  scale: number,
+  beltTop: number,
+  beltH: number,
+): void {
+  const x = exit.distanceFromInfeedFt * scale
+  const centerY = beltTop + beltH / 2
+  const side = exit.side  // 'left' | 'right'
+
+  ctx.save()
+
+  switch (exit.diverterType) {
+    case 'arm_pusher': {
+      // Arm: a thick angled bar crossing ~60% of the belt, hinged at one edge
+      const armLen = beltH * 0.7
+      const pivotY = side === 'right' ? beltTop + beltH * 0.2 : beltTop + beltH * 0.8
+      const tipDY  = side === 'right' ? beltH * 0.6 : -beltH * 0.6
+      const tipX   = x + beltH * 0.25 * (side === 'right' ? 1 : -1)
+      ctx.strokeStyle = '#374151'
+      ctx.lineWidth = Math.max(3, armLen * 0.12)
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(x, pivotY)
+      ctx.lineTo(tipX, pivotY + tipDY)
+      ctx.stroke()
+      // Pivot dot
+      ctx.fillStyle = '#374151'
+      ctx.beginPath()
+      ctx.arc(x, pivotY, Math.max(2.5, beltH * 0.06), 0, Math.PI * 2)
+      ctx.fill()
+      break
+    }
+
+    case 'sliding_shoe': {
+      // Two diagonal chevron lines across the belt
+      const w = Math.max(4, beltH * 0.12)
+      const halfH = beltH * 0.35
+      const offset = beltH * 0.15 * (side === 'right' ? 1 : -1)
+      ctx.strokeStyle = '#6b7280'
+      ctx.lineWidth = Math.max(1.5, w * 0.35)
+      ctx.lineCap = 'round'
+      for (const dx of [-w, w]) {
+        ctx.beginPath()
+        ctx.moveTo(x + dx + offset, centerY - halfH)
+        ctx.lineTo(x + dx - offset, centerY + halfH)
+        ctx.stroke()
+      }
+      break
+    }
+
+    case 'pop_up_roller': {
+      // Small filled circle representing the pop-up roller module
+      const r = Math.max(3, beltH * 0.13)
+      ctx.fillStyle = '#9ca3af'
+      ctx.strokeStyle = '#6b7280'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.arc(x, centerY, r, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.stroke()
+      break
+    }
+
+    case 'mdr_module':
+    case 'powered_roller': {
+      // Horizontal bar spanning full belt width
+      const barH = Math.max(2, beltH * 0.1)
+      ctx.fillStyle = '#d1d5db'
+      ctx.strokeStyle = '#9ca3af'
+      ctx.lineWidth = 1
+      ctx.fillRect(x - barH / 2, beltTop, barH, beltH)
+      ctx.strokeRect(x - barH / 2, beltTop, barH, beltH)
+      break
+    }
+  }
+
+  ctx.restore()
 }
 
 function drawExitLane(
@@ -237,6 +321,11 @@ export function drawFrame(input: RenderInput): void {
   // Exit lanes (drawn before packages so packages render on top)
   for (let i = 0; i < exits.length; i++) {
     drawExitLane(ctx, exits[i], scale, beltTop, beltBottom, i)
+  }
+
+  // Diverter symbols on belt surface (on top of belt, below packages)
+  for (const exit of exits) {
+    drawDiverterSymbol(ctx, exit, scale, beltTop, beltH)
   }
 
   // Packages on belt

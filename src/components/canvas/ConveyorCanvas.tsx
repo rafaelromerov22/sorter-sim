@@ -37,6 +37,7 @@ function buildExits(line: ConveyorLineConfig, us: UnitSystem): CanvasExit[] {
     id: e.id,
     side: e.side,
     angle: e.angle,
+    diverterType: e.diverterType,
     distanceFromInfeedFt: conveyorToFt(e.distanceFromInfeed, us),
     laneWidthFt: conveyorToFt(e.laneWidth, us),
     laneLengthFt: conveyorToFt(e.laneLength, us),
