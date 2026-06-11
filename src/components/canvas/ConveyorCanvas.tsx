@@ -43,6 +43,9 @@ function buildExits(line: ConveyorLineConfig, us: UnitSystem): CanvasExit[] {
     laneLengthFt: conveyorToFt(e.laneLength, us),
     // Speed is ft/min for imperial, m/min for metric → convert to ft/min
     exitSpeedFpm: us === 'metric' ? e.exitSpeed * FT_PER_M : e.exitSpeed,
+    diverterCycleTimeSec:   e.diverterCycleTime,
+    diverterExtendTimeSec:  e.diverterExtendTime,
+    diverterRetractTimeSec: e.diverterRetractTime,
   }))
 }
 
