@@ -168,6 +168,7 @@ function drawPackageInLane(
   ctx.restore()
 }
 
+
 export function drawFrame(input: RenderInput): void {
   const {
     ctx, canvasWidth, canvasHeight, simTime,
@@ -221,5 +222,27 @@ export function drawFrame(input: RenderInput): void {
   for (const pkg of packages) {
     if (!isInExitLane(pkg, simTime)) continue
     drawPackageInLane(ctx, pkg, packages, simTime, scale, beltTop, beltBottom, exits, skuMap)
+  }
+
+  // No-read / unrouted packages that have reached the belt end — stack at right edge
+  const endPackages = packages.filter(pkg => {
+    if (pkg.outcome !== 'no_read' && pkg.outcome !== 'overflow') return false
+    const x = packageBeltXFt(pkg, simTime, beltSpeedFpm)
+    return x !== null && x >= beltLengthFt
+  })
+  const GAP_PX = 2
+  let stackOffsetPx = 0
+  for (const pkg of endPackages) {
+    const sku = skuMap.get(pkg.skuId)
+    const pw = Math.max(2, beltDimFt(pkg, sku) * scale)
+    const ph = Math.max(2, crossDimFt(pkg, sku) * scale)
+    const px = beltEndPx - pw - stackOffsetPx
+    const py = canvasHeight / 2 - ph / 2
+    ctx.fillStyle = OUTCOME_COLORS[pkg.outcome] ?? '#9ca3af'
+    ctx.fillRect(px, py, pw, ph)
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+    ctx.lineWidth = 1
+    ctx.strokeRect(px, py, pw, ph)
+    stackOffsetPx += pw + GAP_PX
   }
 }

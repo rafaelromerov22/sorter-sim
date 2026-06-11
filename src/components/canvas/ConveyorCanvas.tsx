@@ -77,13 +77,11 @@ export function ConveyorCanvas() {
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
-      // Sync canvas pixel size to container dimensions
       canvas.width  = container.clientWidth
       canvas.height = Math.max(180, container.clientHeight - 56) // 56 = toolbar height
 
       const beltLengthFt = conveyorToFt(line.conveyor.length, unitSystem)
       const beltWidthFt  = conveyorToFt(line.conveyor.width, unitSystem)
-      // Speed is ft/min for imperial (not inches), metric is m/min → ft/min
       const beltSpeedFpm = unitSystem === 'metric'
         ? line.conveyor.speed * FT_PER_M
         : line.conveyor.speed
@@ -103,7 +101,6 @@ export function ConveyorCanvas() {
     },
     [simFullResult, line, unitSystem],
   )
-
 
   // ── Animation loop ──────────────────────────────────────────────────────────
   useEffect(() => {
