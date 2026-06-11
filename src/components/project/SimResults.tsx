@@ -31,11 +31,12 @@ export function SimResults({ results }: Props) {
       )}
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Kpi label="Actual PPM" value={results.actualPPM.toFixed(1)} />
-        <Kpi label="Packages"   value={results.totalPackages.toString()} />
-        <Kpi label="Jams"       value={results.jamCount.toString()} />
-        <Kpi label="No-Reads"   value={results.noReadCount.toString()} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <Kpi label="Actual PPM"   value={results.actualPPM.toFixed(1)} />
+        <Kpi label="Packages"     value={results.totalPackages.toString()} />
+        <Kpi label="Mech. Jams"   value={results.mechanicalJamCount.toString()} warn={results.mechanicalJamCount > 0} />
+        <Kpi label="Divert. Jams" value={results.diverterJamCount.toString()} warn={results.diverterJamCount > 0} />
+        <Kpi label="No-Reads"     value={results.noReadCount.toString()} />
       </div>
 
       {/* Charts row */}

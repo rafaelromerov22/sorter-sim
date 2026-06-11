@@ -11,6 +11,8 @@ const BASE: SimulationResults = {
   totalPackages: 100,
   completedPackages: 80,
   jamCount: 5,
+  diverterJamCount: 4,
+  mechanicalJamCount: 1,
   noReadCount: 3,
   unroutedCount: 2,
   recirculationCount: 1,
