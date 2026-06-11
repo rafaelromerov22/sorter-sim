@@ -10,6 +10,7 @@ export interface CanvasExit {
   distanceFromInfeedFt: number
   laneWidthFt: number
   laneLengthFt: number
+  exitSpeedFpm: number
 }
 
 export interface SkuRenderInfo {
@@ -117,54 +118,79 @@ function drawPackageOnBelt(
   ctx.strokeRect(px, py, pw, ph)
 }
 
-function drawPackageInLane(
+// Draw all packages in one exit lane with time-based movement.
+// Packages advance at exitSpeedFpm; each package is blocked by the one ahead.
+// A package disappears once its tail passes the lane end (operator removed it).
+function drawExitLanePackages(
   ctx: CanvasRenderingContext2D,
-  pkg: SimPackage,
+  exit: CanvasExit,
   packages: SimPackage[],
   simTime: number,
   scale: number,
   beltTop: number,
   beltBottom: number,
-  exits: CanvasExit[],
   skuMap: RenderInput['skuMap'],
 ): void {
-  const exit = exits.find(e => e.id === pkg.assignedExitId)
-  if (!exit) return
-  const sku = skuMap.get(pkg.skuId)
-  const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
+  // Packages that have arrived at this exit, sorted earliest first (furthest in lane)
+  const arrived = packages
+    .filter(p =>
+      p.assignedExitId === exit.id &&
+      p.outcome === 'diverted' &&
+      p.arrivalAtDiverterSec !== null &&
+      simTime >= p.arrivalAtDiverterSec,
+    )
+    .sort((a, b) => (a.arrivalAtDiverterSec ?? 0) - (b.arrivalAtDiverterSec ?? 0))
 
-  const exitXPx = exit.distanceFromInfeedFt * scale
-  const originY = exit.side === 'left' ? beltTop : beltBottom
-  const angleRad = (exit.angle * Math.PI) / 180
+  if (arrived.length === 0) return
+
+  const exitXPx   = exit.distanceFromInfeedFt * scale
+  const originY   = exit.side === 'left' ? beltTop : beltBottom
+  const angleRad  = (exit.angle * Math.PI) / 180
   const canvasAngle = exit.side === 'right' ? angleRad : -angleRad
-
-  const pkgLenPx = Math.max(2, beltDimFt(pkg, sku) * scale)
-  const pkgWPx   = Math.max(2, crossDimFt(pkg, sku) * scale)
+  const laneLenPx = exit.laneLengthFt * scale
+  const speedPxPerSec = (exit.exitSpeedFpm / 60) * scale
   const GAP_PX = 2
-
-  // Sum the actual rendered lengths of all packages that arrived before this one
-  const priorPkgs = packages.filter(p =>
-    p.assignedExitId === pkg.assignedExitId &&
-    p.outcome === 'diverted' &&
-    p.arrivalAtDiverterSec !== null &&
-    p.arrivalAtDiverterSec < (pkg.arrivalAtDiverterSec ?? Infinity) &&
-    simTime >= p.arrivalAtDiverterSec,
-  )
-  const offsetPx = priorPkgs.reduce((sum, p) => {
-    const ps = skuMap.get(p.skuId)
-    return sum + Math.max(2, beltDimFt(p, ps) * scale) + GAP_PX
-  }, 0)
 
   ctx.save()
   ctx.translate(exitXPx, originY)
   ctx.rotate(canvasAngle)
-  ctx.globalAlpha = 0.8
-  ctx.fillStyle = color
-  ctx.fillRect(offsetPx, -pkgWPx / 2, pkgLenPx, pkgWPx)
-  ctx.globalAlpha = 1
-  ctx.strokeStyle = 'rgba(0,0,0,0.12)'
-  ctx.lineWidth = 1
-  ctx.strokeRect(offsetPx, -pkgWPx / 2, pkgLenPx, pkgWPx)
+
+  // Process from first-arrived (furthest) to last-arrived (closest to belt).
+  // blockerTailPx = tail position of the preceding package (the one ahead in the lane).
+  // A package's tail cannot advance past (blockerTailPx - gap).
+  let blockerTailPx = Infinity
+
+  for (const pkg of arrived) {
+    const sku       = skuMap.get(pkg.skuId)
+    const pkgLenPx  = Math.max(2, beltDimFt(pkg, sku) * scale)
+    const pkgWPx    = Math.max(2, crossDimFt(pkg, sku) * scale)
+    const elapsed   = simTime - (pkg.arrivalAtDiverterSec ?? simTime)
+    const naturalTailPx = elapsed * speedPxPerSec
+
+    // Clamp: can't run into the package ahead
+    const maxTailPx = blockerTailPx === Infinity
+      ? naturalTailPx
+      : Math.min(naturalTailPx, blockerTailPx - pkgLenPx - GAP_PX)
+    const tailPx = Math.max(0, maxTailPx)
+
+    // Package fully past lane end → operator removed it, stop tracking as blocker
+    if (tailPx >= laneLenPx) {
+      blockerTailPx = Infinity
+      continue
+    }
+
+    const color = OUTCOME_COLORS[pkg.outcome] ?? sku?.color ?? '#3b82f6'
+    ctx.globalAlpha = 0.85
+    ctx.fillStyle = color
+    ctx.fillRect(tailPx, -pkgWPx / 2, pkgLenPx, pkgWPx)
+    ctx.globalAlpha = 1
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)'
+    ctx.lineWidth = 1
+    ctx.strokeRect(tailPx, -pkgWPx / 2, pkgLenPx, pkgWPx)
+
+    blockerTailPx = tailPx
+  }
+
   ctx.restore()
 }
 
@@ -218,10 +244,9 @@ export function drawFrame(input: RenderInput): void {
     drawPackageOnBelt(ctx, pkg, simTime, beltSpeedFpm, scale, canvasHeight, skuMap)
   }
 
-  // Packages in exit lanes
-  for (const pkg of packages) {
-    if (!isInExitLane(pkg, simTime)) continue
-    drawPackageInLane(ctx, pkg, packages, simTime, scale, beltTop, beltBottom, exits, skuMap)
+  // Packages in exit lanes — drawn per exit so we can apply advancing movement
+  for (const exit of exits) {
+    drawExitLanePackages(ctx, exit, packages, simTime, scale, beltTop, beltBottom, skuMap)
   }
 
   // No-read / unrouted packages that have reached the belt end — stack at right edge
