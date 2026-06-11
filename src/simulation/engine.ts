@@ -6,7 +6,7 @@ import { theoreticalMaxFeedPPM } from '../utils/throughputCalc'
 const MAX_PACKAGES = 50_000
 
 export function runSimulation(input: SimInput): SimRunResult {
-  const { beltSpeedFpm, minGapIn, targetPPM, runDurationSec, scanReadRate, plcLatencyMs, availabilityFactor } = input
+  const { beltSpeedFpm, minGapIn, targetPPM, runDurationSec, scanReadRate, plcLatencyMs, availabilityFactor, mechanicalJamRate } = input
   const RUN_DURATION_SEC = runDurationSec
   const rng = createRng(input.randomSeed)
   const intervalSec = 60 / targetPPM
@@ -46,6 +46,18 @@ export function runSimulation(input: SimInput): SimRunResult {
 
     // Availability: skip slot if machine is down
     if (rng() > availabilityFactor) continue
+
+    // Mechanical failure: package jams on the belt before reaching any diverter
+    if (mechanicalJamRate > 0 && rng() < mechanicalJamRate) {
+      jamCount++
+      packages.push({
+        id: i, skuId: '', skuName: 'Unknown',
+        lengthFt: 1,
+        infeedTimeSec, scanSuccess: false, assignedExitId: null,
+        arrivalAtDiverterSec: null, outcome: 'jammed',
+      })
+      continue
+    }
 
     const hasSKUs = input.skus.length > 0
     const sku = hasSKUs ? pickSKU(input.skus, rng) : null

@@ -29,6 +29,7 @@ export function toSimInput(line: ConveyorLineConfig, unitSystem: UnitSystem): Si
     beltLengthFt: m ? mToFt(line.conveyor.length) : line.conveyor.length / 12,
     minGapIn: m ? mmToIn(line.conveyor.minGapDistance) : line.conveyor.minGapDistance,
     availabilityFactor: line.conveyor.availabilityFactor,
+    mechanicalJamRate: line.conveyor.mechanicalJamRate,
     targetPPM: line.feed.targetPPM,
     runDurationSec: line.feed.runDurationSec,
     scanReadRate: line.feed.scanReadRate,

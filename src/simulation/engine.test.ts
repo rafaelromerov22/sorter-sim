@@ -30,6 +30,7 @@ function baseInput(overrides: Partial<SimInput> = {}): SimInput {
     beltLengthFt: 100,
     minGapIn: 6,
     availabilityFactor: 1.0,
+    mechanicalJamRate: 0,
     targetPPM: 20,
     runDurationSec: 300,
     scanReadRate: 1.0,

@@ -91,6 +91,29 @@ export function ConveyorConfigPanel({ line }: Props) {
         </div>
       </div>
 
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-600">
+          Mechanical Jam Rate
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min={0}
+            max={0.1}
+            step={0.001}
+            value={line.conveyor.mechanicalJamRate}
+            onChange={e => updateConveyor(line.id, { mechanicalJamRate: parseFloat(e.target.value) })}
+            className="flex-1"
+          />
+          <span className="w-12 text-right text-sm tabular-nums">
+            {(line.conveyor.mechanicalJamRate * 100).toFixed(1)}%
+          </span>
+        </div>
+        <span className="text-xs text-gray-400">
+          % of packages that jam due to mechanical failure
+        </span>
+      </div>
+
       <InputField
         label="Encoder Resolution"
         value={line.conveyor.encoderResolution}

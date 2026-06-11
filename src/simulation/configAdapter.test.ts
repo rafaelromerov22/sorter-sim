@@ -8,7 +8,7 @@ function makeImperialLine(overrides: Partial<ConveyorLineConfig> = {}): Conveyor
     name: 'Line 1',
     conveyor: {
       length: 1200, width: 36, speed: 200,  // 1200 in = 100 ft; speed stays ft/min
-      minGapDistance: 6, availabilityFactor: 0.88, encoderResolution: 100,
+      minGapDistance: 6, availabilityFactor: 0.88, mechanicalJamRate: 0, encoderResolution: 100,
     },
     exits: [],
     feed: {

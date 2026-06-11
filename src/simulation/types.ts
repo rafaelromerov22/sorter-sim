@@ -6,6 +6,7 @@ export interface SimInput {
   beltLengthFt: number
   minGapIn: number
   availabilityFactor: number   // 0–1
+  mechanicalJamRate: number    // 0–1 (fraction of packages that jam due to mechanical failure)
   targetPPM: number
   runDurationSec: number
   scanReadRate: number         // 0–1

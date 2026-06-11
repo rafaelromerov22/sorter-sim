@@ -53,12 +53,13 @@ export type ProductOrientation = 'long_axis_parallel' | 'long_axis_perpendicular
 export type ValidationSeverity = 'critical' | 'warning' | 'info'
 
 export interface ConveyorConfig {
-  length: number             // ft | m
-  width: number              // ft | m
-  speed: number              // ft/min | m/min
-  minGapDistance: number     // in | mm  (minGapTime is derived in UI)
-  availabilityFactor: number // 0.0–1.0
-  encoderResolution: number  // pulses per ft | m
+  length: number                  // ft | m
+  width: number                   // ft | m
+  speed: number                   // ft/min | m/min
+  minGapDistance: number          // in | mm  (minGapTime is derived in UI)
+  availabilityFactor: number      // 0.0–1.0
+  mechanicalJamRate: number       // 0.0–1.0 (fraction of packages that jam due to mechanical failure)
+  encoderResolution: number       // pulses per ft | m
 }
 
 export interface ExitConfig {
