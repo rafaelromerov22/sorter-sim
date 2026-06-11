@@ -47,10 +47,11 @@ function crossDimFt(_pkg: SimPackage, sku: SkuRenderInfo | undefined): number {
 
 // Outcome overrides SKU color for failed packages
 const OUTCOME_COLORS: Partial<Record<string, string>> = {
-  jammed: '#ef4444',
-  no_read: '#9ca3af',
-  overflow: '#9ca3af',
-  recirculated: '#d1d5db',
+  jammed:          '#ef4444',  // red   — diverter jam
+  mechanical_jam:  '#f97316',  // orange — mechanical failure
+  no_read:         '#9ca3af',
+  overflow:        '#9ca3af',
+  recirculated:    '#d1d5db',
 }
 
 function drawExitLane(

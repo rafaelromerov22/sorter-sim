@@ -38,6 +38,8 @@ export function runSimulation(input: SimInput): SimRunResult {
   let recirculationCount = 0
   let completedCount = 0
   let jamCount = 0
+  let diverterJamCount = 0
+  let mechanicalJamCount = 0
   let overflowCount = 0
 
   for (let i = 0; i < MAX_PACKAGES; i++) {
@@ -50,11 +52,12 @@ export function runSimulation(input: SimInput): SimRunResult {
     // Mechanical failure: package jams on the belt before reaching any diverter
     if (mechanicalJamRate > 0 && rng() < mechanicalJamRate) {
       jamCount++
+      mechanicalJamCount++
       packages.push({
         id: i, skuId: '', skuName: 'Unknown',
         lengthFt: 1,
         infeedTimeSec, scanSuccess: false, assignedExitId: null,
-        arrivalAtDiverterSec: null, outcome: 'jammed',
+        arrivalAtDiverterSec: null, outcome: 'mechanical_jam',
       })
       continue
     }
@@ -107,6 +110,7 @@ export function runSimulation(input: SimInput): SimRunResult {
         if (arrivalAtDiverterSec < diverterAvailableAt[exit.id]) {
           outcome = 'jammed'
           jamCount++
+          diverterJamCount++
           exitJamCount[exit.id]++
           if (jamEvents.length < 100) {
             const gapAvail = arrivalAtDiverterSec -
@@ -180,6 +184,8 @@ export function runSimulation(input: SimInput): SimRunResult {
     totalPackages: packages.length,
     completedPackages: completedCount,
     jamCount,
+    diverterJamCount,
+    mechanicalJamCount,
     noReadCount,
     unroutedCount,
     recirculationCount,

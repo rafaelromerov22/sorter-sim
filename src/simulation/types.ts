@@ -39,11 +39,12 @@ export interface SimSKU {
 }
 
 export type PackageOutcome =
-  | 'diverted'      // Successfully sorted to an assigned exit lane
-  | 'jammed'        // Diverter was still cycling when package arrived
-  | 'no_read'       // Scan failed, no no-read exit configured
-  | 'recirculated'  // Scan failed, recirculation enabled
-  | 'overflow'      // Exit lane queue was at maxQueueDepth
+  | 'diverted'         // Successfully sorted to an assigned exit lane
+  | 'jammed'           // Diverter was still cycling when package arrived
+  | 'mechanical_jam'   // Random mechanical failure on the belt
+  | 'no_read'          // Scan failed, no no-read exit configured
+  | 'recirculated'     // Scan failed, recirculation enabled
+  | 'overflow'         // Exit lane queue was at maxQueueDepth
 
 export interface SimPackage {
   id: number
@@ -81,6 +82,8 @@ export interface SimRunResult {
   totalPackages: number
   completedPackages: number
   jamCount: number
+  diverterJamCount: number
+  mechanicalJamCount: number
   noReadCount: number
   unroutedCount: number
   recirculationCount: number

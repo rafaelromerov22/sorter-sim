@@ -151,6 +151,8 @@ export interface SimulationResults {
   totalPackages: number
   completedPackages: number
   jamCount: number
+  diverterJamCount: number
+  mechanicalJamCount: number
   noReadCount: number
   unroutedCount: number
   recirculationCount: number
